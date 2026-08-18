@@ -619,6 +619,81 @@ compile
 test
 ```
 
+## Graphical properties are part of the project contract
+
+The project defines an explicit set of graphical properties for GUI elements.
+
+These properties are not incidental implementation details.
+
+They are part of the DSL contract between:
+
+```text
+Scheme specification
+        |
+        v
+Generator intermediate model
+        |
+        v
+generated JUCE properties
+        |
+        v
+YATemplate / KineticLookAndFeel
+```
+
+Every graphical component may define properties that describe how it must be rendered or behave visually.
+
+Examples already present include:
+
+```text
+title
+valueType
+suffix
+showValue
+showTicks
+showLabels
+tickCount
+tickMode
+tickLabels
+style
+scaleType
+rangeMin
+rangeMax
+numSegments
+gridStyle
+glowMultiplier
+isSharp
+```
+
+The exact set depends on the component type.
+
+These properties must be:
+
+1. preserved by the Generator;
+2. emitted into the generated C++ when applicable;
+3. interpreted by YATemplate / KineticLookAndFeel;
+4. considered when adding new graphical features;
+5. extended when a new visual behaviour requires additional semantic configuration.
+
+A graphical feature must not be hardcoded if it can reasonably be represented as a property.
+
+When a new property is introduced, the whole chain must be considered:
+
+```text
+DSL slot
+    |
+component->model
+    |
+generated property
+    |
+KineticLookAndFeel interpretation
+```
+
+Existing properties must not be silently ignored.
+
+The current property system is expected to grow over time.
+
+Therefore, before modifying graphical rendering code, always verify whether an existing property already expresses the required behaviour and, if not, consider adding a new property to the DSL rather than introducing an isolated C++ special case.
+
 ## Current state
 
 Attualmente sono già presenti o supportati:
