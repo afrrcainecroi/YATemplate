@@ -1,0 +1,37 @@
+# Tutto escluso per default
+*
+
+# Git/documentazione
+!.gitignore
+!README.md
+!PROJECT_STATE.md
+
+# Projucer project
+!JX11.jucer
+
+# Source tree
+!Source/
+Source/*
+
+!Source/KineticLookAndFeel.cpp
+!Source/KineticLookAndFeel.h
+!Source/MyPlugin.cpp
+!Source/MyPlugin.h
+!Source/Oscillator.h
+!Source/PluginEditor.cpp
+!Source/PluginEditor.h
+!Source/PluginProcessor.cpp
+!Source/PluginProcessor.h
+!Source/Synth.h
+!Source/Utils.cpp
+!Source/Utils.h
+
+# Resources used by the template
+!Resources/
+Resources/*
+
+!Resources/wave_iramp.png
+!Resources/wave_ramp.png
+!Resources/wave_sine.png
+!Resources/wave_square.png
+!Resources/wave_triangle.png
