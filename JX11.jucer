@@ -8,13 +8,7 @@
               companyEmail="aacf-eu@gmail.com" maxBinaryFileSize="20971520"
               pluginManufacturerCode="Aacf">
   <MAINGROUP id="oJCTC2" name="YATemplate">
-    <GROUP id="{9CBDE637-751C-CA90-2461-F218ABBB1681}" name="Resources">
-      <FILE id="YOu1Sb" name="wave_iramp.png" compile="0" resource="1" file="Resources/wave_iramp.png"/>
-      <FILE id="vvfE15" name="wave_ramp.png" compile="0" resource="1" file="Resources/wave_ramp.png"/>
-      <FILE id="mW7nrI" name="wave_sine.png" compile="0" resource="1" file="Resources/wave_sine.png"/>
-      <FILE id="fN3H46" name="wave_square.png" compile="0" resource="1" file="Resources/wave_square.png"/>
-      <FILE id="ZDTZKZ" name="wave_triangle.png" compile="0" resource="1" file="Resources/wave_triangle.png"/>
-    </GROUP>
+    <GROUP id="{9CBDE637-751C-CA90-2461-F218ABBB1681}" name="Resources"/>
     <GROUP id="{06D34FFE-5C7B-FE1F-1632-1023D927248F}" name="Source">
       <FILE id="pzVlfX" name="Utils.cpp" compile="1" resource="0" file="Source/Utils.cpp"/>
       <FILE id="breaGF" name="MyPlugin.cpp" compile="1" resource="0" file="Source/MyPlugin.cpp"/>

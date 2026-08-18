@@ -18,17 +18,22 @@ JX11AudioProcessorEditor::JX11AudioProcessorEditor(JX11AudioProcessor &p)
     kineticLNF.setEditorForRepaint(this);
     startTimer(40);
 
-    std::vector<juce::Image> shapeIcons;
+    /// IMAGE_RESOURCES START
 
-    // Esempio: Carica da BinaryData (i nomi dipendono da come li hai salvati nel Projucer)
-    shapeIcons.push_back(juce::ImageCache::getFromMemory(BinaryData::wave_sine_png, BinaryData::wave_sine_pngSize));
-    shapeIcons.push_back(juce::ImageCache::getFromMemory(BinaryData::wave_square_png, BinaryData::wave_square_pngSize));
-    shapeIcons.push_back(juce::ImageCache::getFromMemory(BinaryData::wave_ramp_png, BinaryData::wave_ramp_pngSize));
-    shapeIcons.push_back(juce::ImageCache::getFromMemory(BinaryData::wave_triangle_png, BinaryData::wave_triangle_pngSize));
-    shapeIcons.push_back(juce::ImageCache::getFromMemory(BinaryData::wave_iramp_png, BinaryData::wave_iramp_pngSize));
+    // std::vector<juce::Image> shapeIcons;
 
-    // Passa le icone al LookAndFeel
-    kineticLNF.registerImageSet("waves", shapeIcons);
+    // // Esempio: Carica da BinaryData (i nomi dipendono da come li hai salvati nel Projucer)
+    // shapeIcons.push_back(juce::ImageCache::getFromMemory(BinaryData::wave_sine_png, BinaryData::wave_sine_pngSize));
+    // shapeIcons.push_back(juce::ImageCache::getFromMemory(BinaryData::wave_square_png, BinaryData::wave_square_pngSize));
+    // shapeIcons.push_back(juce::ImageCache::getFromMemory(BinaryData::wave_ramp_png, BinaryData::wave_ramp_pngSize));
+    // shapeIcons.push_back(juce::ImageCache::getFromMemory(BinaryData::wave_triangle_png, BinaryData::wave_triangle_pngSize));
+    // shapeIcons.push_back(juce::ImageCache::getFromMemory(BinaryData::wave_iramp_png, BinaryData::wave_iramp_pngSize));
+
+    // // Passa le icone al LookAndFeel
+    // kineticLNF.registerImageSet("waves", shapeIcons);
+
+    /// IMAGE_RESOURCES END
+
 
     /* Alcune info sullo schermo*/
     juce::Rectangle<int> screenSize = juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea;
