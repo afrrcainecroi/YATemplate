@@ -1,3 +1,10 @@
+## License
+
+This project is licensed under the MIT License.
+
+Copyright (c) 2025- Franco Arcieri (afrrcainecroi).
+
+
 # Manuale d'Uso: Proprietà del KineticLookAndFeel
 
 Il `KineticLookAndFeel` personalizzato sfrutta il sistema di proprietà (`NamedValueSet`) di `juce::Component` per modificare dinamicamente il rendering di Slider e Bottoni senza la necessità di creare classi derivate. 
