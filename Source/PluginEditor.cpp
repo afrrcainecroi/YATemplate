@@ -541,7 +541,10 @@ void JX11AudioProcessorEditor::mouseEnter(const juce::MouseEvent &event)
     }
 }
 //==============================================================================
-
+void JX11AudioProcessorEditor::paint(juce::Graphics& g)
+{
+    kineticLNF.drawBackground(g, getLocalBounds());
+}
 
 void JX11AudioProcessorEditor::resized()
 {
