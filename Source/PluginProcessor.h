@@ -132,8 +132,12 @@ public:
 
   ///OVERSAMPLING_PPH START
 
-  std::unique_ptr<juce::dsp::Oversampling<float>> oversampling;
-  size_t oversampling_factor=2;
+  // std::unique_ptr<juce::dsp::Oversampling<float>> oversampling;
+  // size_t oversampling_factor=2;
+
+std::unique_ptr<juce::dsp::Oversampling<float>> oversampling2x;
+std::unique_ptr<juce::dsp::Oversampling<float>> oversampling4x;
+std::unique_ptr<juce::dsp::Oversampling<float>> oversampling8x;
 
   ///OVERSAMPLING_PPH END
 
