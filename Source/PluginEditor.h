@@ -311,7 +311,9 @@ public:
     ~JX11AudioProcessorEditor() override;
 
     //==============================================================================
-    //void paint(juce::Graphics &) override;
+    
+    
+    void paint(juce::Graphics &) override;
     void resized() override;
     void mouseEnter(const juce::MouseEvent &event) override;
     void mouseDown(const juce::MouseEvent& event) override
@@ -417,12 +419,18 @@ private:
         }
         /// FOOTER_TIMER END
 
+
+        /// TIMER START
+
         // Aggiorna Meters
         meterIn.updateLevel(ap.meterInPeak.load());
         meterOut.updateLevel(ap.meterOutPeak.load());
 
         // Aggiorna Oscilloscopio
         scopeVisualizer.fetchFromProcessor(ap.scopeFifo, ap.scopeWriteIdx.load(std::memory_order_relaxed));
+
+        /// TIMER END
+
     }
 
     // Dati del layout parsati dal JSON
