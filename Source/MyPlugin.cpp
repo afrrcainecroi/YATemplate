@@ -32,6 +32,7 @@ void MyPlugin::processAudio(
     /// MYPLUGIN_PROCESS_AUDIO_BLOCK START
 
     /// MYPLUGIN_PROCESS_AUDIO_BLOCK END
+
 }
 
 void MyPlugin::prepare(
