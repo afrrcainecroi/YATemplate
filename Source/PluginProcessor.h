@@ -53,12 +53,16 @@ public:
       return false;
   }
 
+  /// DSP_RUNTIME_MEMBERS START
+
   std::atomic<float> meterInPeak { 0.0f };
   std::atomic<float> meterOutPeak { 0.0f };
 
   // NUOVO BUFFER THREAD-SAFE PER LO SCOPE
   std::array<std::atomic<float>, 128> scopeFifo {};
   std::atomic<int> scopeWriteIdx { 0 };
+
+  /// DSP_RUNTIME_MEMBERS END
 
   void processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &) override;
 
