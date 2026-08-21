@@ -15,14 +15,34 @@ public:
     ~MyPlugin();
 
     void ButtonCallback(int num, juce::String name) {
-        realPlugin->ButtonCallback(num, name);
+        realPlugin1x->ButtonCallback(num, name);
+        realPlugin2x->ButtonCallback(num, name);
+        realPlugin4x->ButtonCallback(num, name);
+        realPlugin8x->ButtonCallback(num, name);
     }
+    void prepare(
+    double sampleRate,
+    int samplesPerBlock,
+    int numChannels);
 
-    void render(juce::AudioBuffer<float> &buffer);
+void render(
+    juce::AudioBuffer<float>& buffer,
+    int oversamplingFactor);
 
-    //Resampling, when activated
-    void render(juce::dsp::AudioBlock<float> &buffer);
+void render(
+    juce::dsp::AudioBlock<float>& buffer,
+    int oversamplingFactor);
+
 
     JX11AudioProcessor *processor=nullptr;
-    std::unique_ptr<RealPlugin> realPlugin;
+
+    std::unique_ptr<RealPlugin> realPlugin1x;
+    std::unique_ptr<RealPlugin> realPlugin2x;
+    std::unique_ptr<RealPlugin> realPlugin4x;
+    std::unique_ptr<RealPlugin> realPlugin8x;
+
+    /// FFT_MYPLUGIN_MEMBERS START
+
+    /// FFT_MYPLUGIN_MEMBERS END
+
 };

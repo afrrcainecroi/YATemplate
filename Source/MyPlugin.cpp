@@ -8,21 +8,42 @@ MyPlugin::MyPlugin(JX11AudioProcessor *ap)
     jassert(processor->value_info_sampleRate >0 && processor->value_info_max_samplesPerBlock > 0);
 
     //Qui inizializza il plugin presente in Synth.cpp/Synth.h
-    realPlugin = std::make_unique<RealPlugin>(processor);
+    //realPlugin = std::make_unique<RealPlugin>(processor);
+
+    /// MYPLUGIN_FFT_INIT START
+    
+    /// MYPLUGIN_FFT_INIT END
+
 }
 
 MyPlugin::~MyPlugin()
 {
 }
 
-void MyPlugin::render(juce::AudioBuffer<float> &buffer)
+void MyPlugin::render(
+    juce::AudioBuffer<float>& buffer,
+    int oversamplingFactor)
 {
-    //E qui chiama il codice del plugin (in Synth.h/cpp)
-    realPlugin->render(buffer);
+    /// MYPLUGIN_RENDER_BUFFER START
+
+    /// MYPLUGIN_RENDER_BUFFER END
 }
 
-//Resampling when needed
-void MyPlugin::render(juce::dsp::AudioBlock<float> &buffer) {
-    //E qui chiama il codice del plugin (in Synth.h/cpp)
-    realPlugin->render(buffer);
+
+void MyPlugin::render(
+    juce::dsp::AudioBlock<float>& buffer,
+    int oversamplingFactor)
+{
+    /// MYPLUGIN_RENDER_BLOCK START
+
+    /// MYPLUGIN_RENDER_BLOCK END
+}
+
+void MyPlugin::prepare(
+    double sampleRate,
+    int samplesPerBlock,
+    int numChannels)
+{
+    /// MYPLUGIN_PREPARE START
+    /// MYPLUGIN_PREPARE END
 }

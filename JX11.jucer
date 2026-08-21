@@ -10,6 +10,7 @@
   <MAINGROUP id="oJCTC2" name="YATemplate">
     <GROUP id="{9CBDE637-751C-CA90-2461-F218ABBB1681}" name="Resources"/>
     <GROUP id="{06D34FFE-5C7B-FE1F-1632-1023D927248F}" name="Source">
+      <FILE id="uULt0Q" name="PluginDSP.h" compile="0" resource="0" file="Source/PluginDSP.h"/>
       <FILE id="pzVlfX" name="Utils.cpp" compile="1" resource="0" file="Source/Utils.cpp"/>
       <FILE id="breaGF" name="MyPlugin.cpp" compile="1" resource="0" file="Source/MyPlugin.cpp"/>
       <FILE id="L82LYp" name="MyPlugin.h" compile="0" resource="0" file="Source/MyPlugin.h"/>

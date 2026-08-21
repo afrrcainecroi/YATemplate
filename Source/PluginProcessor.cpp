@@ -132,6 +132,15 @@ void JX11AudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     /// OVERSAMPLING_PPC END
 
     myplugin = std::make_unique<MyPlugin>(this);
+    if (myplugin != nullptr)
+    {
+        myplugin->prepare(
+            sampleRate,
+            samplesPerBlock,
+            juce::jmax(
+                getTotalNumInputChannels(),
+                getTotalNumOutputChannels()));
+    }
 }
 
 void JX11AudioProcessor::releaseResources()
