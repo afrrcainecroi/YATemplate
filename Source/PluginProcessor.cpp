@@ -125,7 +125,7 @@ void JX11AudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     this->value_info_max_samplesPerBlock = samplesPerBlock;
 
     // Pre-alloca la memoria. 2 canali e dimensione massima del blocco.
-    dryBuffer.setSize(2, samplesPerBlock);
+    dryBuffer.setSize(getTotalNumInputChannels(), samplesPerBlock);
 
     /// OVERSAMPLING_PPC START
 
