@@ -436,7 +436,7 @@ DSP BYPASS
     |
 OVERSAMPLING       [future]
     |
-myplugin->render()
+myplugin->processAudio()
     |
 DOWNSAMPLING       [future]
     |
@@ -466,7 +466,7 @@ Il buffer deve uscire invariato.
 Quando attivo:
 
 ```text
-myplugin->render()
+myplugin->processAudio()
 ```
 
 viene saltato.

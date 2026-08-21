@@ -36,6 +36,7 @@ public:
   //==============================================================================
   void prepareToPlay(double sampleRate, int samplesPerBlock) override;
   void releaseResources() override;
+  void reset() override;
 
   // In questo modo blocco il supporto a mono e stereo
   // e imposto il layout mono o stereo per input e output

@@ -24,12 +24,13 @@ public:
     double sampleRate,
     int samplesPerBlock,
     int numChannels);
+    void reset();
 
-void render(
+void processAudio(
     juce::AudioBuffer<float>& buffer,
     int oversamplingFactor);
 
-void render(
+void processAudio(
     juce::dsp::AudioBlock<float>& buffer,
     int oversamplingFactor);
 

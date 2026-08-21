@@ -148,10 +148,13 @@ void JX11AudioProcessor::releaseResources()
     myplugin.reset();
 
     /// OVERSAMPLING_PPCRR START
-
-    oversampling.reset();
-
     /// OVERSAMPLING_PPCRR END
+}
+
+void JX11AudioProcessor::reset()
+{
+    if (myplugin != nullptr)
+        myplugin->reset();
 }
 
 void JX11AudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages)
@@ -252,9 +255,7 @@ void JX11AudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Mi
     /// WETDRY_PPC_PREFIX END
 
     /// OVERSAMPLING_PPCPB START
-    // // Se non è oversampling allora mette     myplugin->render(buffer);
-
-    myplugin->render(buffer);
+    myplugin->processAudio(buffer, 1);
 
     /// OVERSAMPLING_PPCPB END
 

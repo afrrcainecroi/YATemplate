@@ -12,10 +12,3 @@
 
 
 /// FFT_INFRASTRUCTURE END
-
-
-
-/// SYNTH_H_RP START
-
-
-/// SYNTH_H_RP END
