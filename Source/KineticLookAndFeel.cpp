@@ -953,7 +953,7 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
 
         for (int i = 0; i < numSegments; ++i)
         {
-            float prop = (float)i / (numSegments - 1);
+            float prop = numSegments == 1 ? 0.0f : (float)i / (numSegments - 1);
             float segDB = juce::jmap(prop, minDB, maxDB);
             bool isLit = (currentDB >= segDB);
 
