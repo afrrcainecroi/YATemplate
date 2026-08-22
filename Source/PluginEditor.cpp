@@ -613,8 +613,8 @@ void JX11AudioProcessorEditor::resized()
 
                 // Leggiamo i valori JSON e LI MOLTIPLICHIAMO per la scala
                 float m_base = (float)comp.getProperty("margin", 4.0f);
-                float m_lr   = (float)comp.getProperty("margin_lr", m_base) * scaleX; // Scala X
-                float m_tb   = (float)comp.getProperty("margin_tb", m_base) * scaleY; // Scala Y
+                float m_lr   = (float)comp.getProperty("margin-lr", m_base) * scaleX; // Scala X
+                float m_tb   = (float)comp.getProperty("margin-tb", m_base) * scaleY; // Scala Y
 
                 // if (id == "footerLink" || id == "lblCopyright")
                 // {
