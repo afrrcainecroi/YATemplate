@@ -734,6 +734,7 @@ void KineticLookAndFeel::drawLinearTicks(juce::Graphics &g, juce::Slider &slider
 void KineticLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int width, int height, float sliderPos, float, float, const juce::Slider::SliderStyle style, juce::Slider &slider)
 {
     juce::Rectangle<int> bounds(x, y, width, height);
+    bounds.reduce(2, 2);
     bool isVertical = (style == juce::Slider::LinearVertical);
     float scaleBase = isVertical ? (float)width : (float)height;
 
@@ -743,46 +744,36 @@ void KineticLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int w
     float trackThickness = juce::jmin(scaleBase * 0.15f, 14.0f);
     float thumbW = isVertical ? (scaleBase * 0.40f) : (scaleBase * 0.30f);
     float thumbH = isVertical ? (scaleBase * 0.25f) : (scaleBase * 0.30f);
-    float marginX = isVertical ? 0.0f : thumbW * 0.5f;
-    float marginY = isVertical ? thumbH * 0.5f : 0.0f;
+    float marginX = isVertical ? 0.0f : juce::jmax(thumbW * 0.5f, fontSizeTick * 2.0f);
+    float marginY = isVertical ? juce::jmax(thumbH * 0.5f, fontSizeTick * 0.6f) : 0.0f;
 
     drawComponentTitle(g, bounds, slider.getProperties()["title"].toString(), fontSizeTitle);
 
-    if (isVertical && (bool)slider.getProperties().getWithDefault("showValue", true)) {
+    bool showValue = (bool)slider.getProperties().getWithDefault("showValue", true);
+    juce::Rectangle<int> valueArea;
+    if (showValue) {
         int valH = (int)(fontSizeVal * 1.4f);
-        auto valArea = bounds.removeFromBottom(valH);
-        bounds.removeFromBottom(12);
-        if (g.getClipBounds().intersects(valArea)) {
-            g.setFont(juce::FontOptions(fontSizeVal));
-            g.setColour(currentPalette.neonWhite);
-        
-            // Recupera il tipo
-            juce::String type = slider.getProperties().getWithDefault("valueType", "default");
-            juce::String suffix = slider.getProperties().getWithDefault("suffix", "").toString();
-            
-            juce::String mainText = formatMetric(slider.getValue(), type);
-            if (mainText != "-inf") mainText += suffix;
-
-            //juce::String valText = formatMetric(slider.getValue(), type) + suffix;
-            g.drawFittedText(mainText,  valArea, juce::Justification::centred, 1);
-            //g.drawFittedText(formatValueForDisplay(slider.getValue()) + slider.getProperties().getWithDefault("suffix", "").toString(), valArea, juce::Justification::centred, 1);
-        }
+        valueArea = bounds.removeFromBottom(juce::jmin(valH, bounds.getHeight()));
+        bounds.removeFromBottom(juce::jmin((int)(fontSizeVal * 0.25f), bounds.getHeight()));
     }
 
     bool showLabels = (bool)slider.getProperties().getWithDefault("showLabels", false);
     juce::Rectangle<int> tickArea;
     if (showLabels || slider.getProperties().contains("showTicks")) {
-        float tickSpace = fontSizeTick * 3.5f;
+        float tickSpace = fontSizeTick * 3.0f;
         if (isVertical) {
-            int w = juce::jmin(juce::jmax((int)(bounds.getWidth() * 0.5f), 40), bounds.getWidth());
+            int w = juce::jmin(juce::jmax((int)(bounds.getWidth() * 0.45f),
+                                         (int)(fontSizeTick * 3.0f)),
+                               juce::jmax(0, bounds.getWidth() - (int)thumbW));
             tickArea = bounds.removeFromRight(w).reduced(0, (int)marginY);
         } else {
-            tickArea = bounds.removeFromBottom((int)tickSpace).reduced((int)marginX, 0);
+            int h = juce::jmin((int)tickSpace, bounds.getHeight());
+            tickArea = bounds.removeFromBottom(h).reduced((int)marginX, 0);
         }
     }
 
-    if (!tickArea.isEmpty()) drawLinearTicks(g, slider, tickArea.toFloat(), isVertical, fontSizeTick, scaleBase * 0.12f);
-    if (!isVertical) bounds = bounds.reduced(0, (int)(height * 0.20f));
+    if (!tickArea.isEmpty())
+        drawLinearTicks(g, slider, tickArea.toFloat(), isVertical, fontSizeTick, scaleBase * 0.09f);
 
     auto trackArea = bounds.toFloat();
     juce::Point<float> startPoint, endPoint, thumbPoint;
@@ -800,10 +791,10 @@ void KineticLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int w
         thumbPoint.x = startPoint.x + ((float)slider.valueToProportionOfLength(slider.getValue()) * (endPoint.x - startPoint.x));
     }
 
-    g.setColour(currentPalette.trackDark);
+    g.setColour(currentPalette.trackDark.brighter(0.35f));
     juce::Path bgTrack; bgTrack.startNewSubPath(startPoint); bgTrack.lineTo(endPoint);
     g.strokePath(bgTrack, juce::PathStrokeType(trackThickness, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
-    g.setColour(currentPalette.outline.withAlpha(0.5f)); g.strokePath(bgTrack, juce::PathStrokeType(1.0f));
+    g.setColour(currentPalette.outline.withAlpha(0.75f)); g.strokePath(bgTrack, juce::PathStrokeType(1.0f));
 
     if (slider.getValue() > slider.getMinimum()) {
         juce::ColourGradient grad(currentPalette.neonAux, startPoint.x, startPoint.y, currentPalette.neonCore, thumbPoint.x, thumbPoint.y, false);
@@ -832,6 +823,27 @@ void KineticLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int w
             juce::ColourGradient glow(currentPalette.neonCore.withAlpha(0.8f), dotRect.getCentreX(), dotRect.getCentreY(), juce::Colours::transparentBlack, dotRect.getCentreX(), dotRect.getCentreY() - radius, true);
             g.setGradientFill(glow); g.fillEllipse(dotRect.withSizeKeepingCentre(radius*2, radius*2));
         }
+    }
+
+    if (showValue && !valueArea.isEmpty() && g.getClipBounds().intersects(valueArea)) {
+        g.setFont(juce::FontOptions(fontSizeVal));
+        g.setColour(currentPalette.neonWhite);
+
+        juce::String type = slider.getProperties().getWithDefault("valueType", "default");
+        juce::String suffix = slider.getProperties().getWithDefault("suffix", "").toString();
+        juce::String mainText;
+        auto tickLabels = slider.getProperties()["tickLabels"];
+
+        if (tickLabels.isArray() && !tickLabels.getArray()->isEmpty() && slider.getInterval() > 0.0) {
+            int index = juce::roundToInt((slider.getValue() - slider.getMinimum()) / slider.getInterval());
+            index = juce::jlimit(0, tickLabels.getArray()->size() - 1, index);
+            mainText = tickLabels.getArray()->getReference(index).toString();
+        } else {
+            mainText = formatMetric(slider.getValue(), type);
+            if (mainText != "-inf") mainText += suffix;
+        }
+
+        g.drawFittedText(mainText, valueArea, juce::Justification::centred, 1);
     }
 }
 
