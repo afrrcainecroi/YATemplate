@@ -103,7 +103,7 @@ void DrawingUtils::ResetScreenSize()
 void DrawingUtils::SetCurrentScreenSize(juce::Rectangle<int> &bounds)
 {
     auto doubleBounds = bounds.toFloat();
-    InitScreenSize(doubleBounds.getWidth(), doubleBounds.getHeight());
+    InitCurrentScreenSize(doubleBounds.getWidth(), doubleBounds.getHeight());
 }
 
 double DrawingUtils::NormalizeX(double x)

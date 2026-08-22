@@ -532,6 +532,8 @@ void JX11AudioProcessorEditor::resizeEditorFromProcessor(int targetW, int target
     if (getConstrainer())
         getConstrainer()->setFixedAspectRatio(0.0);
     setSize(targetW, targetH);
+    if (getConstrainer())
+        getConstrainer()->setFixedAspectRatio(ap.drawingUtils.screenRatio);
     repaint();
 }
 
