@@ -879,11 +879,15 @@ void KineticLookAndFeel::drawToggleButton(juce::Graphics &g, juce::ToggleButton 
     }
 }
 
-void KineticLookAndFeel::drawButtonBackground(juce::Graphics &g, juce::Button &button, const juce::Colour &, bool, bool)
+void KineticLookAndFeel::drawButtonBackground(juce::Graphics &g, juce::Button &button, const juce::Colour &, bool isMouseOverButton, bool isButtonDown)
 {
     auto b = button.getLocalBounds().toFloat().reduced(1);
-    g.setColour(currentPalette.background.brighter(0.1f)); g.fillRoundedRectangle(b, 6);
-    g.setColour(button.isMouseOver() ? currentPalette.neonCore : currentPalette.outline); g.drawRoundedRectangle(b, 6, 1.5f);
+    g.setColour(isButtonDown ? currentPalette.neonCore.withAlpha(0.2f)
+                             : currentPalette.background.brighter(0.1f));
+    g.fillRoundedRectangle(b, 6);
+    g.setColour(isButtonDown ? currentPalette.neonWhite
+                             : (isMouseOverButton ? currentPalette.neonCore : currentPalette.outline));
+    g.drawRoundedRectangle(b, 6, 1.5f);
 }
 
 void KineticLookAndFeel::drawButtonText (juce::Graphics& g, juce::TextButton& button, bool isMouseOverButton, bool isButtonDown)
@@ -891,7 +895,8 @@ void KineticLookAndFeel::drawButtonText (juce::Graphics& g, juce::TextButton& bu
     // Logica originale per SYNC, POWER, ecc.
     float fontSize = getSafeFontSize(button.getHeight() * 0.32f);
     g.setFont(juce::FontOptions(fontSize).withStyle("Bold"));
-    g.setColour(isMouseOverButton ? currentPalette.neonWhite : currentPalette.neonCore);
+    g.setColour(isButtonDown ? currentPalette.neonAux
+                             : (isMouseOverButton ? currentPalette.neonWhite : currentPalette.neonCore));
     g.drawText(button.getButtonText(), button.getLocalBounds(), juce::Justification::centred, true);
 }
 
