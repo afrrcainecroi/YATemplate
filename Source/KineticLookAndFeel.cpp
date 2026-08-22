@@ -839,25 +839,30 @@ void KineticLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int w
 void KineticLookAndFeel::drawToggleButton(juce::Graphics &g, juce::ToggleButton &button, bool, bool)
 {
     bool isOn = button.getToggleState();
+    juce::String style = button.getProperties().getWithDefault("style", "normal").toString();
+    bool isSwitch = style == "switch" || button.getProperties().contains("isSwitch");
+    float disabledAlpha = isSwitch && !button.isEnabled() ? 0.42f : 1.0f;
+    auto colourForState = [disabledAlpha](juce::Colour colour) {
+        return colour.withMultipliedAlpha(disabledAlpha);
+    };
     auto bounds = button.getLocalBounds().toFloat().reduced(2.0f);
     float h = bounds.getHeight();
     auto textBounds = bounds.removeFromTop(h * 0.45f);
     g.setFont(juce::FontOptions(getSafeFontSize(h * 0.22f)).withStyle("Bold"));
-    g.setColour(currentPalette.neonWhite);
+    g.setColour(colourForState(currentPalette.neonWhite));
     g.drawText(button.getButtonText(), textBounds, juce::Justification::centred, true);
 
-    juce::String style = button.getProperties().getWithDefault("style", "normal").toString();
-    if (style == "switch" || button.getProperties().contains("isSwitch")) {
+    if (isSwitch) {
         float swH = h * 0.4f; float swW = swH * 2.2f;
         auto swRect = bounds.withSizeKeepingCentre(swW, swH);
-        g.setColour(currentPalette.trackDark); g.fillRoundedRectangle(swRect, swH / 2.0f);
-        g.setColour(currentPalette.outline); g.drawRoundedRectangle(swRect, swH / 2.0f, 1.5f);
+        g.setColour(colourForState(currentPalette.trackDark)); g.fillRoundedRectangle(swRect, swH / 2.0f);
+        g.setColour(colourForState(currentPalette.outline)); g.drawRoundedRectangle(swRect, swH / 2.0f, 1.5f);
         float thumbSize = swH * 0.85f;
         float tx = isOn ? swRect.getRight() - thumbSize - 2.0f : swRect.getX() + 2.0f;
-        g.setColour(isOn ? currentPalette.neonCore : juce::Colours::grey); g.fillEllipse(tx, swRect.getCentreY() - thumbSize / 2.0f, thumbSize, thumbSize);
+        g.setColour(colourForState(isOn ? currentPalette.neonCore : juce::Colours::grey)); g.fillEllipse(tx, swRect.getCentreY() - thumbSize / 2.0f, thumbSize, thumbSize);
         if (isOn && (button.isMouseOver() || button.isDown())) {
             float glowRad = thumbSize * 0.8f;
-            juce::ColourGradient glow(currentPalette.neonCore, tx + thumbSize/2, swRect.getCentreY(), juce::Colours::transparentBlack, tx + thumbSize/2, swRect.getCentreY() - glowRad, true);
+            juce::ColourGradient glow(colourForState(currentPalette.neonCore), tx + thumbSize/2, swRect.getCentreY(), juce::Colours::transparentBlack, tx + thumbSize/2, swRect.getCentreY() - glowRad, true);
             g.setGradientFill(glow); g.fillEllipse(tx + thumbSize/2 - glowRad, swRect.getCentreY() - glowRad, glowRad*2, glowRad*2);
         }
     } else {
