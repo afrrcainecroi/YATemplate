@@ -276,18 +276,7 @@ void KineticLookAndFeel::drawLabel(juce::Graphics &g, juce::Label &label)
 {
     if (!label.isBeingEdited()) {
         g.setColour(label.findColour(juce::Label::textColourId));
-        
-        // Se è la nostra label del copyright, forziamo il font a 12 e togliamo il grassetto
-        if (label.getName() == "copyright") 
-        {
-            g.setFont(juce::FontOptions(12.0f));
-        }
-        else 
-        {
-            // Logica originale per tutte le altre label (es. THEME)
-            float fontSize = getSafeFontSize(label.getHeight() * 0.45f);
-            g.setFont(juce::FontOptions(fontSize).withStyle("Bold"));
-        }
+        g.setFont(label.getFont());
 
         g.drawFittedText(label.getText(), label.getLocalBounds(), label.getJustificationType(), 1);
     }
