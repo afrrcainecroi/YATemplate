@@ -392,15 +392,24 @@ void KineticLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int w
     float fontSizeVal = getSafeFontSize(dim * 0.075f);
     float fontSizeTicks = getSafeFontSize(dim * 0.065f);
 
-    drawComponentTitle(g, bounds, slider.getProperties()["title"].toString(), fontSizeTitle);
+    // Reserve the optional TITLE REGION before deriving the MAIN REGION.
+    juce::String titleText = slider.getProperties()["title"].toString();
+    juce::Rectangle<int> titleArea;
+    if (titleText.isNotEmpty())
+    {
+        int titleH = (int)(fontSizeTitle * 1.4f);
+        titleArea = bounds.removeFromTop(titleH);
+        bounds.removeFromTop((int)(titleH * 0.1f));
+    }
 
     bool showVal = (bool)slider.getProperties().getWithDefault("showValue", true);
+    juce::Rectangle<int> valueArea;
+    juce::String valueText;
+    bool customValueTextFound = false;
     if (showVal) {
         int valH = (int)(fontSizeVal * 1.5f);
-        auto valArea = bounds.removeFromBottom(valH);
-        
-        juce::String mainText;
-        bool customTextFound = false;
+        // Reserve the VALUE REGION before deriving the MAIN REGION.
+        valueArea = bounds.removeFromBottom(valH);
 
         // 1. Controlla se ci sono etichette custom (es. "SIN", "SQU")
         if (slider.getProperties().contains("tickLabels"))
@@ -414,53 +423,118 @@ void KineticLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int w
                 
                 if (index >= 0 && index < arr->size())
                 {
-                    mainText = (*arr)[index].toString();
-                    customTextFound = true;
+                    valueText = (*arr)[index].toString();
+                    customValueTextFound = true;
                 }
             }
         }
 
         // 2. Se non ha trovato etichette custom, usa i numeri standard
-        if (!customTextFound)
+        if (!customValueTextFound)
         {
-            juce::String type = slider.getProperties().getWithDefault("valueType", "default");
-            juce::String suffix = slider.getProperties().getWithDefault("suffix", "").toString();
-            mainText = formatMetric(slider.getValue(), type);
-            if (mainText != "-inf") mainText += suffix;
+            valueText = formatMetric(slider.getValue(), type);
+            if (valueText != "-inf") valueText += suffix;
+        }
+    }
+
+    auto drawLiveTextRegions = [&]
+    {
+        if (!titleArea.isEmpty() && g.getClipBounds().intersects(titleArea))
+        {
+            g.setFont(juce::FontOptions(fontSizeTitle).withStyle("Bold"));
+            g.setColour(currentPalette.neonWhite);
+            g.drawFittedText(titleText,
+                             titleArea.translated(0, +(int)(fontSizeTitle * 0.30f)),
+                             juce::Justification::centred,
+                             1);
         }
 
-        if (g.getClipBounds().intersects(valArea)) {
+        if (showVal && !valueArea.isEmpty() && g.getClipBounds().intersects(valueArea))
+        {
             juce::Font f = juce::FontOptions(fontSizeVal);
             // Se è testo (es. "SINE"), lo facciamo leggermente più piccolo se necessario
-            if (customTextFound && mainText.length() > 3) f = f.withHeight(fontSizeVal * 0.9f);
+            if (customValueTextFound && valueText.length() > 3) f = f.withHeight(fontSizeVal * 0.9f);
             
             g.setColour(currentPalette.neonWhite);
             g.setFont(f);
-            // Disegna il testo leggermente più in alto per non uscire dai bordi
-            g.drawFittedText(mainText, valArea.translated(0, -(int)(valH * 1.6f)), juce::Justification::centred, 1);
+            g.drawFittedText(valueText,
+                             valueArea.translated(0, -(int)(fontSizeVal * 0.65f)),
+                             juce::Justification::centred,
+                             1);
         }
+    };
+
+    // Everything below is confined to the remaining MAIN REGION.
+    auto mainArea = bounds.toFloat();
+    if (mainArea.isEmpty())
+    {
+        drawLiveTextRegions();
+        return;
     }
-    
-    auto trackArea = bounds.toFloat();
-    float availableSize = juce::jmin(trackArea.getWidth(), trackArea.getHeight());
+
+    float availableSize = juce::jmin(mainArea.getWidth(), mainArea.getHeight());
     bool showTicks = slider.getProperties().contains("showTicks");
     bool showLabels = (bool)slider.getProperties().getWithDefault("showLabels", false);
     float diameter = availableSize * ((showTicks && showLabels) ? 0.66f : 0.90f);
     float radius = diameter * 0.5f;
-    float trackThickness = diameter * 0.08f;
-    float centerX = trackArea.getCentreX();
-    float centerY = trackArea.getCentreY();
 
-    int ticksCount = (int)slider.getProperties().getWithDefault("tickCount", 0);
-    juce::String cacheKey = getCacheKey(slider); //width, height, ticksCount, showLabels);
+    if (showTicks && showLabels)
+    {
+        // drawRotaryTicks places label centres at 1.32 * radius and uses
+        // boxes sized 4.0 * font by 1.5 * font. Keep that complete envelope
+        // inside the MAIN REGION.
+        float radiusForWidth = (mainArea.getWidth() * 0.5f - fontSizeTicks * 2.0f) / 1.32f;
+        float radiusForHeight = (mainArea.getHeight() * 0.5f - fontSizeTicks * 0.75f) / 1.32f;
+        radius = juce::jmin(radius, juce::jmax(0.0f, juce::jmin(radiusForWidth, radiusForHeight)));
+        diameter = radius * 2.0f;
+    }
+
+    if (radius <= 0.0f)
+    {
+        drawLiveTextRegions();
+        return;
+    }
+
+    float trackThickness = diameter * 0.08f;
+    float centerX = mainArea.getCentreX();
+    float centerY = mainArea.getCentreY();
+
+    juce::String tickLabelsKey;
+    auto tickLabels = slider.getProperties()["tickLabels"];
+    if (tickLabels.isArray())
+        for (const auto& label : *tickLabels.getArray())
+        {
+            auto labelText = label.toString();
+            tickLabelsKey += "_" + juce::String(labelText.length()) + ":" + labelText;
+        }
+
+    juce::String cacheKey = "rotary-static-v1"
+                          "_W" + juce::String(width)
+                          + "_H" + juce::String(height)
+                          + "_M" + juce::String(mainArea.getX())
+                          + "_" + juce::String(mainArea.getY())
+                          + "_" + juce::String(mainArea.getWidth())
+                          + "_" + juce::String(mainArea.getHeight())
+                          + "_R" + juce::String(radius)
+                          + "_A" + juce::String(rotaryStartAngle)
+                          + "_" + juce::String(rotaryEndAngle)
+                          + (showTicks ? "_T" : "_N")
+                          + (showLabels ? "_L" : "_N")
+                          + "_TC" + slider.getProperties().getWithDefault("tickCount", 0).toString()
+                          + "_TM" + slider.getProperties().getWithDefault("tickMode", "all").toString()
+                          + "_VT" + type
+                          + "_MIN" + juce::String(slider.getMinimum())
+                          + "_MAX" + juce::String(slider.getMaximum())
+                          + "_SK" + juce::String(slider.getSkewFactor())
+                          + tickLabelsKey;
 
     if (rotaryCache.find(cacheKey) == rotaryCache.end())
     {
         juce::Image img(juce::Image::ARGB, width, height, true);
         juce::Graphics gCache(img);
 
-        float cX = width * 0.5f;
-        float imgCY = (bounds.getY() - y) + bounds.getHeight() * 0.5f;
+        float cX = centerX - (float)x;
+        float imgCY = centerY - (float)y;
 
         if (showTicks)
             drawRotaryTicks(gCache, slider, cX, imgCY, radius, rotaryStartAngle, rotaryEndAngle, fontSizeTicks);
@@ -564,6 +638,9 @@ void KineticLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int w
         p.applyTransform(juce::AffineTransform::rotation(toAngle).translated(centerX, centerY));
         g.fillPath(p);
     }
+
+    // TITLE and VALUE are live and are never part of the static cache image.
+    drawLiveTextRegions();
 }
 
 // ==============================================================================
