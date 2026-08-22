@@ -15,6 +15,11 @@ MyPlugin::~MyPlugin()
 {
 }
 
+/// MYPLUGIN_DEVELOPER_LATENCY START
+
+/// MYPLUGIN_DEVELOPER_LATENCY END
+
+
 void MyPlugin::processAudio(
     juce::AudioBuffer<float>& buffer,
     int oversamplingFactor)

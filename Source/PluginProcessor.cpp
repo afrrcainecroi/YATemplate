@@ -127,10 +127,6 @@ void JX11AudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     // Pre-alloca la memoria. 2 canali e dimensione massima del blocco.
     dryBuffer.setSize(getTotalNumInputChannels(), samplesPerBlock);
 
-    /// OVERSAMPLING_PPC START
-
-    /// OVERSAMPLING_PPC END
-
     myplugin = std::make_unique<MyPlugin>(this);
     if (myplugin != nullptr)
     {
@@ -141,6 +137,11 @@ void JX11AudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
                 getTotalNumInputChannels(),
                 getTotalNumOutputChannels()));
     }
+
+    /// OVERSAMPLING_PPC START
+
+    /// OVERSAMPLING_PPC END
+
 }
 
 void JX11AudioProcessor::releaseResources()
