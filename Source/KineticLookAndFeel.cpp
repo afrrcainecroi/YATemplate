@@ -926,10 +926,24 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
 {
     auto palette = getCurrentPalette();
     
-    // Estrazione parametri di controllo da properties (con fallback di default)
+    // Estrazione parametri di controllo da properties
     bool isSharp = properties.getWithDefault("isSharp", false);
     float glowMultiplier = properties.getWithDefault("glowMultiplier", 1.0f);
-    juce::String scaleType = properties.getWithDefault("scaleType", "dB").toString();
+    juce::String scaleType = properties.getWithDefault("scaleType", "db").toString();
+
+    const bool isDbScale = scaleType == "db";
+    const bool isLinearScale = scaleType == "linear";
+    const bool isVuScale = scaleType == "vu";
+    jassert(isDbScale || isLinearScale || isVuScale);
+    if (!isDbScale && !isLinearScale && !isVuScale)
+        return;
+
+    const auto scaleLabel = [isLinearScale](int db)
+    {
+        return isLinearScale
+                   ? juce::String(juce::Decibels::decibelsToGain((float)db), 1)
+                   : juce::String(db);
+    };
 
     // Sfondo comune
     g.setColour(palette.background.darker(0.8f));
@@ -977,6 +991,23 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
                     g.fillRoundedRectangle(rect.expanded(1.0f), 1.0f);
                 }
             }
+            else
+            {
+                float segW = (ledArea.getWidth() - gap) / numSegments;
+                float xPos = ledArea.getX() + i * segW;
+                juce::Rectangle<float> rect(xPos, ledArea.getY() + gap, segW - gap, ledArea.getHeight() - (gap * 2));
+
+                g.setColour(segCol);
+                g.fillRect(rect);
+
+                if (isLit && !isSharp)
+                {
+                    g.setColour(palette.neonWhite.withAlpha(0.8f));
+                    g.fillRect(rect.reduced(1.0f));
+                    g.setColour(segCol.withAlpha(0.4f * glowMultiplier));
+                    g.fillRoundedRectangle(rect.expanded(1.0f), 1.0f);
+                }
+            }
         }
 
         // Disegno tacche e label basate su scaleType
@@ -984,8 +1015,10 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
         g.setFont(juce::FontOptions(isVertical ? textArea.getWidth() * 0.45f : textArea.getHeight() * 0.5f));
 
         std::vector<int> dbMarks;
-        if (scaleType == "VU") dbMarks = { -20, -10, -7, -5, -3, -1, 0, 1, 2, 3 };
-        else dbMarks = { -40, -24, -12, -6, 0, 3, 6 }; // Default dB
+        if (isVuScale)
+            dbMarks = { -20, -10, -7, -5, -3, -1, 0, 1, 2, 3 };
+        else if (isDbScale || isLinearScale)
+            dbMarks = { -40, -24, -12, -6, 0, 3, 6 };
 
         for (int db : dbMarks)
         {
@@ -996,8 +1029,19 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
                 g.drawHorizontalLine((int)yPos, ledArea.getRight(), ledArea.getRight() + 3.0f);
                 g.setColour(db > 0 ? palette.neonCore : palette.neonWhite.withAlpha(0.7f));
                 
-                juce::String labelStr = (scaleType == "linear") ? juce::String(juce::Decibels::decibelsToGain((float)db), 1) : juce::String(db);
+                juce::String labelStr = scaleLabel(db);
                 g.drawText(labelStr, textArea.withY(yPos - 10).withHeight(20), juce::Justification::centredLeft, false);
+            }
+            else
+            {
+                float xPos = ledArea.getX() + (prop * ledArea.getWidth());
+                g.drawVerticalLine((int)xPos, ledArea.getBottom(), ledArea.getBottom() + 3.0f);
+                g.setColour(db > 0 ? palette.neonCore : palette.neonWhite.withAlpha(0.7f));
+
+                juce::String labelStr = scaleLabel(db);
+                float labelWidth = juce::jmin(40.0f, ledArea.getWidth() / (float)(dbMarks.size() - 1));
+                float labelX = juce::jlimit(textArea.getX(), textArea.getRight() - labelWidth, xPos - labelWidth * 0.5f);
+                g.drawText(labelStr, textArea.withX(labelX).withWidth(labelWidth), juce::Justification::centred, false);
             }
         }
         g.setColour(palette.outline.withAlpha(0.6f));
@@ -1011,7 +1055,12 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
 
         float pivotX = bounds.getCentreX();
         float pivotY = bounds.getBottom() - (bounds.getHeight() * 0.15f);
-        float radius = bounds.getHeight() * 0.75f;
+
+        constexpr float labelEnvelopeFactor = 1.15f;
+        constexpr float labelHalfExtent = 10.0f;
+        float radiusForHeight = (pivotY - bounds.getY() - labelHalfExtent) / labelEnvelopeFactor;
+        float radiusForWidth = (bounds.getWidth() * 0.5f - labelHalfExtent) / labelEnvelopeFactor;
+        float radius = juce::jmax(0.0f, juce::jmin(radiusForHeight, radiusForWidth));
 
         float startAngle = -juce::MathConstants<float>::pi * 0.38f;
         float endAngle = juce::MathConstants<float>::pi * 0.38f;
@@ -1021,7 +1070,11 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
         float currentDB = juce::jlimit(minDB, maxDB, (float)juce::Decibels::gainToDecibels(currentLevel, minDB));
         float needleAngle = juce::jmap(currentDB, minDB, maxDB, startAngle, endAngle);
 
-        std::vector<int> dbMarks = { -40, -30, -20, -10, -5, 0, 3, 6 };
+        std::vector<int> dbMarks;
+        if (isVuScale)
+            dbMarks = { -20, -10, -7, -5, -3, -1, 0, 1, 2, 3 };
+        else if (isDbScale || isLinearScale)
+            dbMarks = { -40, -30, -20, -10, -5, 0, 3, 6 };
         g.setFont(juce::FontOptions(radius * 0.15f));
 
         for (int db : dbMarks)
@@ -1039,7 +1092,7 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
             float textRadius = radius * 1.15f;
             juce::Point<float> textPos(pivotX + std::sin(angle) * textRadius, pivotY - std::cos(angle) * textRadius);
             g.setColour(db > 0 ? palette.neonCore : palette.neonWhite.withAlpha(0.8f));
-            g.drawText(juce::String(db), (int)textPos.x - 10, (int)textPos.y - 10, 20, 20, juce::Justification::centred, false);
+            g.drawText(scaleLabel(db), (int)textPos.x - 10, (int)textPos.y - 10, 20, 20, juce::Justification::centred, false);
         }
 
         juce::Point<float> needleEnd(pivotX + std::sin(needleAngle) * radius * 0.95f, pivotY - std::cos(needleAngle) * radius * 0.95f);
