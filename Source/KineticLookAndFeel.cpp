@@ -950,7 +950,13 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
     
     if (style == 0) // Segmented
     {
-        bool isVertical = bounds.getHeight() > bounds.getWidth();
+        const juce::String orientation =
+            properties.getWithDefault("orientation", "vertical").toString();
+        const bool isVertical = orientation == "vertical";
+        const bool isHorizontal = orientation == "horizontal";
+        jassert(isVertical || isHorizontal);
+        if (!isVertical && !isHorizontal)
+            return;
         
         // Gestione range di scala dinamico
         float minDB = properties.getWithDefault("rangeMin", -40.0f);
