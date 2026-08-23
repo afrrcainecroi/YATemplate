@@ -1129,6 +1129,13 @@ void KineticLookAndFeel::drawKineticScope(juce::Graphics& g, juce::Rectangle<flo
     float glowMultiplier = properties.getWithDefault("glowMultiplier", 1.0f);
     juce::String gridStyle = properties.getWithDefault("gridStyle", "radar").toString();
 
+    constexpr float borderThickness = 2.5f;
+    constexpr float contentInset = 4.0f;
+    constexpr float labelWidth = 30.0f;
+    auto frameBounds = bounds.reduced(borderThickness * 0.5f);
+    auto labelBounds = bounds.withTrimmedLeft(contentInset).withWidth(labelWidth);
+    auto plotBounds = bounds.reduced(contentInset).withTrimmedLeft(labelWidth);
+
     // Sfondo oscilloscopio
     g.setColour(palette.background.darker(0.9f));
     g.fillRoundedRectangle(bounds, 6.0f);
@@ -1140,19 +1147,19 @@ void KineticLookAndFeel::drawKineticScope(juce::Graphics& g, juce::Rectangle<flo
         int numLinesX = 10;
         int numLinesY = 8;
         for (int i = 1; i < numLinesX; ++i) {
-            float xPos = bounds.getX() + (bounds.getWidth() * i / numLinesX);
-            g.drawVerticalLine((int)xPos, bounds.getY(), bounds.getBottom());
+            float xPos = plotBounds.getX() + (plotBounds.getWidth() * i / numLinesX);
+            g.drawVerticalLine((int)xPos, plotBounds.getY(), plotBounds.getBottom());
         }
         for (int i = 1; i < numLinesY; ++i) {
-            float yPos = bounds.getY() + (bounds.getHeight() * i / numLinesY);
-            g.drawHorizontalLine((int)yPos, bounds.getX(), bounds.getRight());
+            float yPos = plotBounds.getY() + (plotBounds.getHeight() * i / numLinesY);
+            g.drawHorizontalLine((int)yPos, plotBounds.getX(), plotBounds.getRight());
         }
     }
     else if (gridStyle == "minimal")
     {
         // Solo bordi esterni e zero-axis tratteggiata
         g.setColour(palette.outline.withAlpha(0.08f));
-        g.drawHorizontalLine((int)bounds.getCentreY(), bounds.getX(), bounds.getRight());
+        g.drawHorizontalLine((int)plotBounds.getCentreY(), plotBounds.getX(), plotBounds.getRight());
     }
     else
     {
@@ -1161,18 +1168,18 @@ void KineticLookAndFeel::drawKineticScope(juce::Graphics& g, juce::Rectangle<flo
 
     // Asse Zero marcato
     g.setColour(palette.neonAux.withAlpha(0.25f));
-    g.drawHorizontalLine((int)bounds.getCentreY(), bounds.getX(), bounds.getRight());
+    g.drawHorizontalLine((int)plotBounds.getCentreY(), plotBounds.getX(), plotBounds.getRight());
 
     // Ricostruzione percorso traccia
     juce::Path path;
-    float midY = bounds.getCentreY();
-    float heightFactor = bounds.getHeight() * 0.45f;
-    float width = bounds.getWidth();
+    float midY = plotBounds.getCentreY();
+    float heightFactor = plotBounds.getHeight() * 0.45f;
+    float width = plotBounds.getWidth();
 
     int readIdx = writeIdx;
     for (int i = 0; i < 128; ++i)
     {
-        float x = bounds.getX() + ((i / 127.0f) * width);
+        float x = plotBounds.getX() + ((i / 127.0f) * width);
         float sample = juce::jlimit(-1.1f, 1.1f, fifo[readIdx]);
         float y = midY - (sample * heightFactor);
 
@@ -1203,12 +1210,12 @@ void KineticLookAndFeel::drawKineticScope(juce::Graphics& g, juce::Rectangle<flo
 
     // Cornice esterna
     g.setColour(palette.outline.withAlpha(0.7f));
-    g.drawRoundedRectangle(bounds, 6.0f, 2.5f);
+    g.drawRoundedRectangle(frameBounds, 6.0f, borderThickness);
 
     // Assi ampiezza testo
     g.setFont(juce::FontOptions(11.0f));
     g.setColour(palette.neonWhite.withAlpha(0.5f));
-    g.drawText("+1.0", bounds.getX() + 4, bounds.getY() + 4, 30, 15, juce::Justification::left, false);
-    g.drawText(" 0.0", bounds.getX() + 4, bounds.getCentreY() - 7, 30, 15, juce::Justification::left, false);
-    g.drawText("-1.0", bounds.getX() + 4, bounds.getBottom() - 18, 30, 15, juce::Justification::left, false);
+    g.drawText("+1.0", labelBounds.getX(), bounds.getY() + 4, labelBounds.getWidth(), 15, juce::Justification::left, false);
+    g.drawText(" 0.0", labelBounds.getX(), bounds.getCentreY() - 7, labelBounds.getWidth(), 15, juce::Justification::left, false);
+    g.drawText("-1.0", labelBounds.getX(), bounds.getBottom() - 18, labelBounds.getWidth(), 15, juce::Justification::left, false);
 }
