@@ -1154,6 +1154,10 @@ void KineticLookAndFeel::drawKineticScope(juce::Graphics& g, juce::Rectangle<flo
         g.setColour(palette.outline.withAlpha(0.08f));
         g.drawHorizontalLine((int)bounds.getCentreY(), bounds.getX(), bounds.getRight());
     }
+    else
+    {
+        jassertfalse; // gridStyle must be validated by the scope DSL.
+    }
 
     // Asse Zero marcato
     g.setColour(palette.neonAux.withAlpha(0.25f));
