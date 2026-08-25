@@ -333,7 +333,7 @@ public:
     ///FOOTER_MOUSE END
     }
 
-    void drawDebugGrid(juce::Graphics &g);
+    void drawDebugGrid( juce::Graphics &g);
     void paintOverChildren(juce::Graphics &g) override;
 
     void resizeEditorFromProcessor(int w, int h);
