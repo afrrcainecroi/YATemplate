@@ -3,17 +3,19 @@
 // ==============================================================================
 // HELPER GLOBALE
 // ==============================================================================
-juce::String KineticLookAndFeel::formatMetric(double value, const juce::String& type)
+juce::String KineticLookAndFeel::formatMetric(double value, const juce::String &type)
 {
     // --- TIPO: GAIN (dB) ---
     if (type == "gain")
     {
         // Soglia di silenzio (puoi cambiarla a -60 o -96)
-        if (value <= -60.0) return "-inf";
-        
+        if (value <= -60.0)
+            return "-inf";
+
         // Opzionale: aggiungi il "+" per valori positivi
-        if (value > 0.0) return "+" + juce::String(value, 1);
-        
+        if (value > 0.0)
+            return "+" + juce::String(value, 1);
+
         return juce::String(value, 1);
     }
 
@@ -21,14 +23,14 @@ juce::String KineticLookAndFeel::formatMetric(double value, const juce::String& 
     if (type == "freq" || type == "hz")
     {
         // Se >= 1000Hz, usa "k" (es. 1.2k)
-        if (std::abs(value) >= 1000.0) 
+        if (std::abs(value) >= 1000.0)
         {
             double kVal = value / 1000.0;
             // Se è intero (es. 1000, 2000), niente decimali ("1k")
             // Se ha decimali (es. 1500), mostra un decimale ("1.5k")
-            if (std::abs(kVal - (int)kVal) < 0.05) 
+            if (std::abs(kVal - (int)kVal) < 0.05)
                 return juce::String((int)kVal) + "k";
-            else 
+            else
                 return juce::String(kVal, 1) + "k";
         }
         // Sotto i 1000Hz, mostra intero (niente decimali per Hz solitamente)
@@ -37,11 +39,12 @@ juce::String KineticLookAndFeel::formatMetric(double value, const juce::String& 
 
     // --- TIPO: DEFAULT / PERCENTUALE ---
     // Logica standard (gestione k generica e decimali intelligenti)
-    if (std::abs(value) >= 1000.0) {
+    if (std::abs(value) >= 1000.0)
+    {
         double kVal = value / 1000.0;
         return juce::String(kVal, (std::abs(kVal - (int)kVal) < 0.05) ? 0 : 1) + "k";
     }
-    
+
     // Se è intero mostra intero, altrimenti 1 decimale
     return juce::String(value, (std::abs(value - (int)value) < 0.05) ? 0 : 1);
 }
@@ -82,26 +85,82 @@ KineticLookAndFeel::KineticPalette KineticLookAndFeel::getPaletteForType(Palette
     KineticPalette pal;
     pal.background = juce::Colour::fromString("ff101010");
     pal.neonWhite = juce::Colour::fromString("ffffffff");
-    
-    switch (type) {
-        case PaletteType::Gold: pal.neonCore = juce::Colour::fromString("ffffaa00"); pal.neonAux = juce::Colour::fromString("ffff2200"); break;
-        case PaletteType::Fire: pal.neonCore = juce::Colour::fromString("ffff3300"); pal.neonAux = juce::Colour::fromString("ff880000"); break;
-        case PaletteType::Radon: pal.neonCore = juce::Colour::fromString("ffff0099"); pal.neonAux = juce::Colour::fromString("ffff44cc"); break;
-        case PaletteType::Cyan: pal.neonCore = juce::Colour::fromString("ff00ffff"); pal.neonAux = juce::Colour::fromString("ff0055aa"); break;
-        case PaletteType::Plasma: pal.neonCore = juce::Colour::fromString("ffaa00ff"); pal.neonAux = juce::Colour::fromString("ff6600cc"); break;
-        case PaletteType::Matrix: pal.neonCore = juce::Colour::fromString("ff00ff00"); pal.neonAux = juce::Colour::fromString("ff004400"); break;
-        case PaletteType::Ocean: pal.neonCore = juce::Colour::fromString("ff0099ff"); pal.neonAux = juce::Colour::fromString("ff002266"); break;
-        case PaletteType::Toxic: pal.neonCore = juce::Colour::fromString("ffccff00"); pal.neonAux = juce::Colour::fromString("ff446600"); break;
-        case PaletteType::White: pal.neonCore = juce::Colour::fromString("ffffffff"); pal.neonAux = juce::Colour::fromString("ff888888"); break;
-        case PaletteType::Sunset: pal.neonCore = juce::Colour::fromString("ffff6600"); pal.neonAux = juce::Colour::fromString("ffff0066"); break;
-        case PaletteType::Mint: pal.neonCore = juce::Colour::fromString("ff00ffaa"); pal.neonAux = juce::Colour::fromString("ff008866"); break;
-        case PaletteType::Vaporwave: pal.neonCore = juce::Colour::fromString("ffff77aa"); pal.neonAux = juce::Colour::fromString("ff00ddff"); break;
-        case PaletteType::Amber: pal.neonCore = juce::Colour::fromString("ffffb000"); pal.neonAux = juce::Colour::fromString("ff552200"); break;
-        case PaletteType::Crimson: pal.neonCore = juce::Colour::fromString("ffff0000"); pal.neonAux = juce::Colour::fromString("ff440000"); break;
-        case PaletteType::Voltage: pal.neonCore = juce::Colour::fromString("ffffee00"); pal.neonAux = juce::Colour::fromString("ff6600aa"); break;
-        case PaletteType::Ultraviolet: pal.neonCore = juce::Colour::fromString("ffaa00ff"); pal.neonAux = juce::Colour::fromString("ff220044"); break;
-        case PaletteType::Stealth: pal.neonCore = juce::Colour::fromString("ffddeeff"); pal.neonAux = juce::Colour::fromString("ff224422"); break;
-        case PaletteType::Midnight: default: pal.neonCore = juce::Colour::fromString("ff4466ff"); pal.neonAux = juce::Colour::fromString("ff001166"); break;
+
+    switch (type)
+    {
+    case PaletteType::Gold:
+        pal.neonCore = juce::Colour::fromString("ffffaa00");
+        pal.neonAux = juce::Colour::fromString("ffff2200");
+        break;
+    case PaletteType::Fire:
+        pal.neonCore = juce::Colour::fromString("ffff3300");
+        pal.neonAux = juce::Colour::fromString("ff880000");
+        break;
+    case PaletteType::Radon:
+        pal.neonCore = juce::Colour::fromString("ffff0099");
+        pal.neonAux = juce::Colour::fromString("ffff44cc");
+        break;
+    case PaletteType::Cyan:
+        pal.neonCore = juce::Colour::fromString("ff00ffff");
+        pal.neonAux = juce::Colour::fromString("ff0055aa");
+        break;
+    case PaletteType::Plasma:
+        pal.neonCore = juce::Colour::fromString("ffaa00ff");
+        pal.neonAux = juce::Colour::fromString("ff6600cc");
+        break;
+    case PaletteType::Matrix:
+        pal.neonCore = juce::Colour::fromString("ff00ff00");
+        pal.neonAux = juce::Colour::fromString("ff004400");
+        break;
+    case PaletteType::Ocean:
+        pal.neonCore = juce::Colour::fromString("ff0099ff");
+        pal.neonAux = juce::Colour::fromString("ff002266");
+        break;
+    case PaletteType::Toxic:
+        pal.neonCore = juce::Colour::fromString("ffccff00");
+        pal.neonAux = juce::Colour::fromString("ff446600");
+        break;
+    case PaletteType::White:
+        pal.neonCore = juce::Colour::fromString("ffffffff");
+        pal.neonAux = juce::Colour::fromString("ff888888");
+        break;
+    case PaletteType::Sunset:
+        pal.neonCore = juce::Colour::fromString("ffff6600");
+        pal.neonAux = juce::Colour::fromString("ffff0066");
+        break;
+    case PaletteType::Mint:
+        pal.neonCore = juce::Colour::fromString("ff00ffaa");
+        pal.neonAux = juce::Colour::fromString("ff008866");
+        break;
+    case PaletteType::Vaporwave:
+        pal.neonCore = juce::Colour::fromString("ffff77aa");
+        pal.neonAux = juce::Colour::fromString("ff00ddff");
+        break;
+    case PaletteType::Amber:
+        pal.neonCore = juce::Colour::fromString("ffffb000");
+        pal.neonAux = juce::Colour::fromString("ff552200");
+        break;
+    case PaletteType::Crimson:
+        pal.neonCore = juce::Colour::fromString("ffff0000");
+        pal.neonAux = juce::Colour::fromString("ff440000");
+        break;
+    case PaletteType::Voltage:
+        pal.neonCore = juce::Colour::fromString("ffffee00");
+        pal.neonAux = juce::Colour::fromString("ff6600aa");
+        break;
+    case PaletteType::Ultraviolet:
+        pal.neonCore = juce::Colour::fromString("ffaa00ff");
+        pal.neonAux = juce::Colour::fromString("ff220044");
+        break;
+    case PaletteType::Stealth:
+        pal.neonCore = juce::Colour::fromString("ffddeeff");
+        pal.neonAux = juce::Colour::fromString("ff224422");
+        break;
+    case PaletteType::Midnight:
+    default:
+        pal.neonCore = juce::Colour::fromString("ff4466ff");
+        pal.neonAux = juce::Colour::fromString("ff001166");
+        break;
     }
     return pal;
 }
@@ -116,21 +175,22 @@ void KineticLookAndFeel::animatePaletteChange(PaletteType newType, int durationM
     isTransitioning = true;
 }
 
-static void repaintHoveredRecursive (juce::Component* c)
+static void repaintHoveredRecursive(juce::Component *c)
 {
     if (!c || !c->isVisible())
         return;
 
-    if (auto* s = dynamic_cast<juce::Slider*>(c))
-        if (s->isMouseOverOrDragging()) s->repaint();
+    if (auto *s = dynamic_cast<juce::Slider *>(c))
+        if (s->isMouseOverOrDragging())
+            s->repaint();
 
-    if (auto* t = dynamic_cast<juce::ToggleButton*>(c))
-        if (t->isMouseOverOrDragging()) t->repaint();
+    if (auto *t = dynamic_cast<juce::ToggleButton *>(c))
+        if (t->isMouseOverOrDragging())
+            t->repaint();
 
-    for (auto* ch : c->getChildren())
+    for (auto *ch : c->getChildren())
         repaintHoveredRecursive(ch);
 }
-
 
 void KineticLookAndFeel::advanceAnimation()
 {
@@ -168,15 +228,18 @@ void KineticLookAndFeel::advanceAnimation()
         setColour(juce::ComboBox::arrowColourId, currentPalette.neonCore);
         setColour(juce::Slider::thumbColourId, currentPalette.neonCore);
 
-        if (transitionProgress >= 1.0f) isTransitioning = false;
-        if (editorToRepaint != nullptr) editorToRepaint->repaint();
+        if (transitionProgress >= 1.0f)
+            isTransitioning = false;
+        if (editorToRepaint != nullptr)
+            editorToRepaint->repaint();
         return;
     }
 
     // 3. BLOCCO RISORSE SE STATICO
     // Se il mouse è fermo da 2.5 secondi e non stiamo cambiando colore,
     // INTERROMPIAMO TUTTO. CPU scende a 0%.
-    if (isMouseStatic) return;
+    if (isMouseStatic)
+        return;
 
     // 4. ANIMAZIONE STANDARD (Solo se il mouse si muove o è appena fermato)
     updateGlowPhase();
@@ -191,15 +254,15 @@ void KineticLookAndFeel::advanceAnimation()
 // }
 
 // Sostituisci la vecchia getCacheKey con questa versione robusta
-juce::String KineticLookAndFeel::getCacheKey(juce::Slider& slider)
+juce::String KineticLookAndFeel::getCacheKey(juce::Slider &slider)
 {
     // Creiamo un ID unico basato su dimensioni, stile e range
     // Così Drive (0-10) e Freq (20-20k) avranno cache diverse
-    return juce::String(slider.getWidth()) + "_" + 
-           juce::String(slider.getHeight()) + "_" + 
+    return juce::String(slider.getWidth()) + "_" +
+           juce::String(slider.getHeight()) + "_" +
            juce::String(slider.getProperties().getWithDefault("tickCount", 0).toString()) + "_" +
-           juce::String(slider.getMinimum()) + "_" + 
-           juce::String(slider.getMaximum()) + "_" + 
+           juce::String(slider.getMinimum()) + "_" +
+           juce::String(slider.getMaximum()) + "_" +
            juce::String(slider.getSkewFactor());
 }
 
@@ -211,14 +274,32 @@ void KineticLookAndFeel::drawBackground(juce::Graphics &g, juce::Rectangle<int> 
         juce::Graphics g2(backgroundCache);
 
         g2.fillAll(currentPalette.background);
-        g2.setColour(currentPalette.outline.withAlpha(0.08f));
-        for (int x = 0; x < area.getWidth(); x += 40) g2.drawVerticalLine(x, 0.0f, (float)area.getHeight());
-        for (int y = 0; y < area.getHeight(); y += 40) g2.drawHorizontalLine(y, 0.0f, (float)area.getWidth());
+        const float width = (float)area.getWidth();
+        const float height = (float)area.getHeight();
+        const float broadRadius = juce::jmax(width, height);
 
-        juce::ColourGradient vignette(juce::Colours::transparentBlack, area.getCentreX(), area.getCentreY(),
-                                      juce::Colours::black.withAlpha(0.85f), 0, 0, true);
+        juce::ColourGradient primaryGlow(currentPalette.neonCore.withAlpha(0.03f),
+                                          width * 0.5f, height * 0.425f,
+                                          currentPalette.neonCore.withAlpha(0.0f),
+                                          width * 0.5f + broadRadius * 0.72f,
+                                          height * 0.425f, true);
+        g2.setGradientFill(primaryGlow);
+        g2.fillRect(area);
+
+        juce::ColourGradient secondaryGlow(currentPalette.neonAux.withAlpha(0.015f),
+                                            width * 0.18f, height * 0.72f,
+                                            currentPalette.neonAux.withAlpha(0.0f),
+                                            width * 0.18f + broadRadius * 0.9f,
+                                            height * 0.72f, true);
+        g2.setGradientFill(secondaryGlow);
+        g2.fillRect(area);
+
+        juce::ColourGradient vignette(juce::Colours::transparentBlack,
+                                      width * 0.5f, height * 0.5f,
+                                      juce::Colours::black.withAlpha(0.07f),
+                                      0.0f, 0.0f, true);
         g2.setGradientFill(vignette);
-        g2.fillAll();
+        g2.fillRect(area);
 
         // if (mainTitle.isNotEmpty())
         // {
@@ -256,14 +337,14 @@ void KineticLookAndFeel::drawBloom(juce::Graphics &g, const juce::Path &path, ju
     g.strokePath(path, juce::PathStrokeType(thickness * 1.4f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
 }
 
-
 void KineticLookAndFeel::drawComponentTitle(juce::Graphics &g, juce::Rectangle<int> &bounds, const juce::String &title, float fontSize)
 {
     if (title.isNotEmpty())
     {
         int height = (int)(fontSize * 1.4f);
         auto titleArea = bounds.removeFromTop(height);
-        if (g.getClipBounds().intersects(titleArea)) {
+        if (g.getClipBounds().intersects(titleArea))
+        {
             g.setFont(juce::FontOptions(fontSize).withStyle("Bold"));
             g.setColour(currentPalette.neonWhite);
             g.drawFittedText(title, titleArea, juce::Justification::centred, 1);
@@ -274,7 +355,8 @@ void KineticLookAndFeel::drawComponentTitle(juce::Graphics &g, juce::Rectangle<i
 
 void KineticLookAndFeel::drawLabel(juce::Graphics &g, juce::Label &label)
 {
-    if (!label.isBeingEdited()) {
+    if (!label.isBeingEdited())
+    {
         g.setColour(label.findColour(juce::Label::textColourId));
         g.setFont(label.getFont());
 
@@ -302,14 +384,14 @@ void KineticLookAndFeel::drawRotaryTicks(juce::Graphics &g, juce::Slider &slider
         auto varLabels = slider.getProperties()["tickLabels"];
         if (varLabels.isArray())
         {
-            for (auto& v : *varLabels.getArray())
+            for (auto &v : *varLabels.getArray())
                 customLabels.add(v.toString());
         }
     }
     // Se abbiamo etichette custom, forziamo il numero di tick alla dimensione dell'array
-    if (!customLabels.isEmpty()) ticks = customLabels.size();
+    if (!customLabels.isEmpty())
+        ticks = customLabels.size();
     // ----------------------------------------
-
 
     float tickDist = radius * 1.1f;
     float textDist = radius * 1.32f;
@@ -323,26 +405,30 @@ void KineticLookAndFeel::drawRotaryTicks(juce::Graphics &g, juce::Slider &slider
         float prop = i / (float)(ticks - 1);
 
         float angle = startAngle + prop * (endAngle - startAngle);
-        //float angle = startAngle + (i / (float)(ticks - 1)) * (endAngle - startAngle);
+        // float angle = startAngle + (i / (float)(ticks - 1)) * (endAngle - startAngle);
         float s = std::sin(angle);
         float c = std::cos(angle);
 
         juce::Line<float> tickLine(centreX + s * (tickDist - tickSize), centreY - c * (tickDist - tickSize),
                                    centreX + s * tickDist, centreY - c * tickDist);
-        
+
         g.setColour(currentPalette.outline.brighter(0.4f));
         g.drawLine(tickLine, 2.0f);
 
-        if (!showLabels) continue;
-        
+        if (!showLabels)
+            continue;
+
         bool drawLabel = false;
-        if (tickMode == "none") drawLabel = false;
-        else if (tickMode == "endpoints") drawLabel = (i == 0 || i == ticks - 1);
-        else drawLabel = (ticks <= 5) || (i % 2 == 0);
+        if (tickMode == "none")
+            drawLabel = false;
+        else if (tickMode == "endpoints")
+            drawLabel = (i == 0 || i == ticks - 1);
+        else
+            drawLabel = (ticks <= 5) || (i % 2 == 0);
 
         if (drawLabel)
         {
-            //double val = slider.getMinimum() + (i / (float)(ticks - 1)) * (slider.getMaximum() - slider.getMinimum());
+            // double val = slider.getMinimum() + (i / (float)(ticks - 1)) * (slider.getMaximum() - slider.getMinimum());
             float tx = centreX + s * textDist;
             float ty = centreY - c * textDist;
 
@@ -362,7 +448,8 @@ void KineticLookAndFeel::drawRotaryTicks(juce::Graphics &g, juce::Slider &slider
             }
             g.setColour(currentPalette.neonWhite.withAlpha(0.9f));
             g.setFont(juce::FontOptions(fontSize));
-            int w = (int)(fontSize * 4.0f); int h = (int)(fontSize * 1.5f);
+            int w = (int)(fontSize * 4.0f);
+            int h = (int)(fontSize * 1.5f);
             g.drawFittedText(labelText, (int)tx - w / 2, (int)ty - h / 2, w, h, juce::Justification::centred, 1);
         }
     }
@@ -395,7 +482,8 @@ void KineticLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int w
     juce::Rectangle<int> valueArea;
     juce::String valueText;
     bool customValueTextFound = false;
-    if (showVal) {
+    if (showVal)
+    {
         int valH = (int)(fontSizeVal * 1.5f);
         // Reserve the VALUE REGION before deriving the MAIN REGION.
         valueArea = bounds.removeFromBottom(valH);
@@ -406,10 +494,10 @@ void KineticLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int w
             auto varLabels = slider.getProperties()["tickLabels"];
             if (varLabels.isArray())
             {
-                auto* arr = varLabels.getArray();
+                auto *arr = varLabels.getArray();
                 // Arrotonda il valore per trovare l'indice (es. 0.0 -> 0, 1.0 -> 1)
                 int index = (int)std::round(slider.getValue());
-                
+
                 if (index >= 0 && index < arr->size())
                 {
                     valueText = (*arr)[index].toString();
@@ -422,7 +510,8 @@ void KineticLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int w
         if (!customValueTextFound)
         {
             valueText = formatMetric(slider.getValue(), type);
-            if (valueText != "-inf") valueText += suffix;
+            if (valueText != "-inf")
+                valueText += suffix;
         }
     }
 
@@ -442,8 +531,9 @@ void KineticLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int w
         {
             juce::Font f = juce::FontOptions(fontSizeVal);
             // Se è testo (es. "SINE"), lo facciamo leggermente più piccolo se necessario
-            if (customValueTextFound && valueText.length() > 3) f = f.withHeight(fontSizeVal * 0.9f);
-            
+            if (customValueTextFound && valueText.length() > 3)
+                f = f.withHeight(fontSizeVal * 0.9f);
+
             g.setColour(currentPalette.neonWhite);
             g.setFont(f);
             g.drawFittedText(valueText,
@@ -491,31 +581,15 @@ void KineticLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int w
     juce::String tickLabelsKey;
     auto tickLabels = slider.getProperties()["tickLabels"];
     if (tickLabels.isArray())
-        for (const auto& label : *tickLabels.getArray())
+        for (const auto &label : *tickLabels.getArray())
         {
             auto labelText = label.toString();
             tickLabelsKey += "_" + juce::String(labelText.length()) + ":" + labelText;
         }
 
     juce::String cacheKey = "rotary-static-v1"
-                          "_W" + juce::String(width)
-                          + "_H" + juce::String(height)
-                          + "_M" + juce::String(mainArea.getX())
-                          + "_" + juce::String(mainArea.getY())
-                          + "_" + juce::String(mainArea.getWidth())
-                          + "_" + juce::String(mainArea.getHeight())
-                          + "_R" + juce::String(radius)
-                          + "_A" + juce::String(rotaryStartAngle)
-                          + "_" + juce::String(rotaryEndAngle)
-                          + (showTicks ? "_T" : "_N")
-                          + (showLabels ? "_L" : "_N")
-                          + "_TC" + slider.getProperties().getWithDefault("tickCount", 0).toString()
-                          + "_TM" + slider.getProperties().getWithDefault("tickMode", "all").toString()
-                          + "_VT" + type
-                          + "_MIN" + juce::String(slider.getMinimum())
-                          + "_MAX" + juce::String(slider.getMaximum())
-                          + "_SK" + juce::String(slider.getSkewFactor())
-                          + tickLabelsKey;
+                            "_W" +
+                            juce::String(width) + "_H" + juce::String(height) + "_M" + juce::String(mainArea.getX()) + "_" + juce::String(mainArea.getY()) + "_" + juce::String(mainArea.getWidth()) + "_" + juce::String(mainArea.getHeight()) + "_R" + juce::String(radius) + "_A" + juce::String(rotaryStartAngle) + "_" + juce::String(rotaryEndAngle) + (showTicks ? "_T" : "_N") + (showLabels ? "_L" : "_N") + "_TC" + slider.getProperties().getWithDefault("tickCount", 0).toString() + "_TM" + slider.getProperties().getWithDefault("tickMode", "all").toString() + "_VT" + type + "_MIN" + juce::String(slider.getMinimum()) + "_MAX" + juce::String(slider.getMaximum()) + "_SK" + juce::String(slider.getSkewFactor()) + tickLabelsKey;
 
     if (rotaryCache.find(cacheKey) == rotaryCache.end())
     {
@@ -546,7 +620,7 @@ void KineticLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int w
     {
         juce::Path valArc;
         valArc.addCentredArc(centerX, centerY, radius, radius, 0.0f, rotaryStartAngle, toAngle, true);
-        
+
         if (slider.isEnabled() && slider.isMouseOverOrDragging())
             drawBloom(g, valArc, currentPalette.neonCore, trackThickness);
 
@@ -586,23 +660,24 @@ void KineticLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int w
         if (setName.isNotEmpty() && imageSets.find(setName) != imageSets.end())
         {
             // Recupera il vettore di riferimento
-            const auto& currentSet = imageSets[setName];
+            const auto &currentSet = imageSets[setName];
 
             // 3. Controlla se l'indice è valido per questo set
-            if (iconType < currentSet.size() && currentSet[iconType].isValid())            {
+            if (iconType < currentSet.size() && currentSet[iconType].isValid())
+            {
                 g.setOpacity(1.0f);
                 // Disegna l'immagine centrata mantenendo le proporzioni
                 g.drawImageWithin(currentSet[iconType],
-                    (int)iconArea.getX(), (int)iconArea.getY(), 
-                    (int)iconArea.getWidth(), (int)iconArea.getHeight(), 
-                    juce::RectanglePlacement::centred | juce::RectanglePlacement::onlyReduceInSize); //stretchToFit
+                                  (int)iconArea.getX(), (int)iconArea.getY(),
+                                  (int)iconArea.getWidth(), (int)iconArea.getHeight(),
+                                  juce::RectanglePlacement::centred | juce::RectanglePlacement::onlyReduceInSize); // stretchToFit
                 imageDrawn = true;
             }
         }
         if (!imageDrawn)
         {
             float iconStroke = diameter * 0.03f;
-            // Passiamo iconType. Se è fuori range per le forme vettoriali standard (0-3), 
+            // Passiamo iconType. Se è fuori range per le forme vettoriali standard (0-3),
             // drawWaveformIcon dovrebbe gestire il caso o non disegnare nulla.
             drawWaveformIcon(g, iconArea, iconType, currentPalette.neonWhite, iconStroke);
         }
@@ -611,7 +686,8 @@ void KineticLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int w
         g.setColour(currentPalette.neonCore);
         g.fillEllipse(dot.x - 3, dot.y - 3, 6, 6);
 
-        if (slider.isEnabled() && slider.isMouseOverOrDragging()) {
+        if (slider.isEnabled() && slider.isMouseOverOrDragging())
+        {
             float sine = (std::sin(glowPhase) + 1.0f) * 0.5f;
             float glowRad = 8.0f + (sine * 4.0f);
             juce::ColourGradient dotGlow(currentPalette.neonCore.withAlpha(0.9f), dot.x, dot.y,
@@ -619,10 +695,13 @@ void KineticLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int w
             g.setGradientFill(dotGlow);
             g.fillEllipse(dot.x - glowRad, dot.y - glowRad, glowRad * 2, glowRad * 2);
         }
-    } else {
+    }
+    else
+    {
         g.setColour(juce::Colours::white);
         juce::Path p;
-        float markerW = diameter * 0.04f; float markerL = dialR * 0.5f;
+        float markerW = diameter * 0.04f;
+        float markerL = dialR * 0.5f;
         p.addRectangle(-markerW / 2, -dialR + (markerL * 0.3f), markerW, markerL);
         p.applyTransform(juce::AffineTransform::rotation(toAngle).translated(centerX, centerY));
         g.fillPath(p);
@@ -639,16 +718,40 @@ void KineticLookAndFeel::drawWaveformIcon(juce::Graphics &g, juce::Rectangle<flo
 {
     juce::Path p;
     area = area.expanded(area.getWidth() * 0.1f);
-    float cx = area.getCentreX(); float cy = area.getCentreY();
-    float top = area.getY(); float bottom = area.getBottom();
-    float left = area.getX(); float right = area.getRight();
-    float w = area.getWidth(); float h = area.getHeight();
+    float cx = area.getCentreX();
+    float cy = area.getCentreY();
+    float top = area.getY();
+    float bottom = area.getBottom();
+    float left = area.getX();
+    float right = area.getRight();
+    float w = area.getWidth();
+    float h = area.getHeight();
 
-    switch (iconType) {
-        case 0: p.startNewSubPath(left, cy); p.quadraticTo(left + w * 0.25f, top, cx, cy); p.quadraticTo(left + w * 0.75f, bottom, right, cy); break;
-        case 1: p.startNewSubPath(left, cy); p.lineTo(left, top + h * 0.2f); p.lineTo(cx, top + h * 0.2f); p.lineTo(cx, bottom - h * 0.2f); p.lineTo(right, bottom - h * 0.2f); p.lineTo(right, cy); break;
-        case 2: p.startNewSubPath(left, bottom); p.lineTo(right, top); p.lineTo(right, bottom); break;
-        case 3: p.startNewSubPath(left, cy); p.lineTo(cx, top); p.lineTo(right, cy); break;
+    switch (iconType)
+    {
+    case 0:
+        p.startNewSubPath(left, cy);
+        p.quadraticTo(left + w * 0.25f, top, cx, cy);
+        p.quadraticTo(left + w * 0.75f, bottom, right, cy);
+        break;
+    case 1:
+        p.startNewSubPath(left, cy);
+        p.lineTo(left, top + h * 0.2f);
+        p.lineTo(cx, top + h * 0.2f);
+        p.lineTo(cx, bottom - h * 0.2f);
+        p.lineTo(right, bottom - h * 0.2f);
+        p.lineTo(right, cy);
+        break;
+    case 2:
+        p.startNewSubPath(left, bottom);
+        p.lineTo(right, top);
+        p.lineTo(right, bottom);
+        break;
+    case 3:
+        p.startNewSubPath(left, cy);
+        p.lineTo(cx, top);
+        p.lineTo(right, cy);
+        break;
     }
     g.setColour(color);
     g.strokePath(p, juce::PathStrokeType(strokeThickness, juce::PathStrokeType::mitered, juce::PathStrokeType::rounded));
@@ -659,23 +762,34 @@ void KineticLookAndFeel::drawLinearTicks(juce::Graphics &g, juce::Slider &slider
     // Recupera il tipo
     juce::String type = slider.getProperties().getWithDefault("valueType", "default");
 
-    if (!g.getClipBounds().intersects(area.toNearestInt())) return;
+    if (!g.getClipBounds().intersects(area.toNearestInt()))
+        return;
     bool showTicks = (bool)slider.getProperties().getWithDefault("showTicks", false);
     bool showLabels = (bool)slider.getProperties().getWithDefault("showLabels", false);
-    if (!showTicks && !showLabels) return;
+    if (!showTicks && !showLabels)
+        return;
 
     juce::var labelsVar = slider.getProperties()["tickLabels"];
     juce::StringArray customLabels;
-    if (labelsVar.isArray()) { auto *a = labelsVar.getArray(); for (auto &v : *a) customLabels.add(v.toString()); }
+    if (labelsVar.isArray())
+    {
+        auto *a = labelsVar.getArray();
+        for (auto &v : *a)
+            customLabels.add(v.toString());
+    }
 
     int forcedTicks = (int)slider.getProperties().getWithDefault("tickCount", 0);
     int numTicks = customLabels.size();
-    if (numTicks == 0) {
+    if (numTicks == 0)
+    {
         double range = slider.getMaximum() - slider.getMinimum();
         double interval = slider.getInterval();
         numTicks = (forcedTicks > 1) ? forcedTicks : ((interval <= 0 || (range / interval) > 50.0) ? 11 : (int)(range / interval) + 1);
     }
-    if (numTicks > 50) numTicks = 11; if (numTicks < 2) return;
+    if (numTicks > 50)
+        numTicks = 11;
+    if (numTicks < 2)
+        return;
 
     g.setFont(juce::FontOptions(fontSize).withStyle("Bold"));
     float effectiveLen = (isVertical ? area.getHeight() : area.getWidth());
@@ -683,19 +797,30 @@ void KineticLookAndFeel::drawLinearTicks(juce::Graphics &g, juce::Slider &slider
     float textPadding = 4.0f + (fontSize * 0.2f);
     int skip = (customLabels.isEmpty() && (effectiveLen / numTicks) < (fontSize * 1.2f)) ? 2 : 1;
 
-    for (int i = 0; i < numTicks; ++i) {
+    for (int i = 0; i < numTicks; ++i)
+    {
         float prop = i / (float)(numTicks - 1);
         bool drawTxt = showLabels;
-        if (customLabels.isEmpty()) {
-            if (tickMode == "endpoints") drawTxt = (i==0 || i==numTicks-1) && showLabels;
-            else if (tickMode == "none") drawTxt = false;
-            else if (showLabels) drawTxt = (i % skip == 0);
+        if (customLabels.isEmpty())
+        {
+            if (tickMode == "endpoints")
+                drawTxt = (i == 0 || i == numTicks - 1) && showLabels;
+            else if (tickMode == "none")
+                drawTxt = false;
+            else if (showLabels)
+                drawTxt = (i % skip == 0);
         }
 
-        if (isVertical) {
+        if (isVertical)
+        {
             float y = area.getBottom() - prop * effectiveLen;
-            if (showTicks) { g.setColour(currentPalette.neonWhite.withAlpha(0.6f)); g.fillRect(area.getX(), y - 1.0f, drawTxt ? tickLen : (tickLen * 0.6f), 2.0f); }
-            if (drawTxt) {
+            if (showTicks)
+            {
+                g.setColour(currentPalette.neonWhite.withAlpha(0.6f));
+                g.fillRect(area.getX(), y - 1.0f, drawTxt ? tickLen : (tickLen * 0.6f), 2.0f);
+            }
+            if (drawTxt)
+            {
                 double val = customLabels.isEmpty() ? slider.proportionOfLengthToValue(prop) : 0.0;
                 g.setColour(currentPalette.neonWhite);
                 float textX = area.getX() + tickLen + textPadding;
@@ -704,10 +829,17 @@ void KineticLookAndFeel::drawLinearTicks(juce::Graphics &g, juce::Slider &slider
                 g.drawFittedText(textToDraw,
                                  (int)textX, (int)(y - fontSize * 0.6f), (int)(area.getRight() - textX), (int)(fontSize * 1.2f), juce::Justification::centredLeft, 1);
             }
-        } else {
+        }
+        else
+        {
             float x = area.getX() + prop * effectiveLen;
-            if (showTicks) { g.setColour(currentPalette.neonWhite.withAlpha(0.6f)); g.fillRect(x - 1.0f, area.getY(), 2.0f, drawTxt ? tickLen : (tickLen * 0.6f)); }
-            if (drawTxt) {
+            if (showTicks)
+            {
+                g.setColour(currentPalette.neonWhite.withAlpha(0.6f));
+                g.fillRect(x - 1.0f, area.getY(), 2.0f, drawTxt ? tickLen : (tickLen * 0.6f));
+            }
+            if (drawTxt)
+            {
                 double val = customLabels.isEmpty() ? slider.proportionOfLengthToValue(prop) : 0.0;
                 g.setColour(currentPalette.neonWhite);
                 float horizontalDist = textPadding * 2.8f;
@@ -740,7 +872,8 @@ void KineticLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int w
 
     bool showValue = (bool)slider.getProperties().getWithDefault("showValue", true);
     juce::Rectangle<int> valueArea;
-    if (showValue) {
+    if (showValue)
+    {
         int valH = (int)(fontSizeVal * 1.4f);
         valueArea = bounds.removeFromBottom(juce::jmin(valH, bounds.getHeight()));
         bounds.removeFromBottom(juce::jmin((int)(fontSizeVal * 0.25f), bounds.getHeight()));
@@ -748,14 +881,18 @@ void KineticLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int w
 
     bool showLabels = (bool)slider.getProperties().getWithDefault("showLabels", false);
     juce::Rectangle<int> tickArea;
-    if (showLabels || slider.getProperties().contains("showTicks")) {
+    if (showLabels || slider.getProperties().contains("showTicks"))
+    {
         float tickSpace = fontSizeTick * 3.0f;
-        if (isVertical) {
+        if (isVertical)
+        {
             int w = juce::jmin(juce::jmax((int)(bounds.getWidth() * 0.45f),
-                                         (int)(fontSizeTick * 3.0f)),
+                                          (int)(fontSizeTick * 3.0f)),
                                juce::jmax(0, bounds.getWidth() - (int)thumbW));
             tickArea = bounds.removeFromRight(w).reduced(0, (int)marginY);
-        } else {
+        }
+        else
+        {
             int h = juce::jmin((int)tickSpace, bounds.getHeight());
             tickArea = bounds.removeFromBottom(h).reduced((int)marginX, 0);
         }
@@ -766,13 +903,16 @@ void KineticLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int w
 
     auto trackArea = bounds.toFloat();
     juce::Point<float> startPoint, endPoint, thumbPoint;
-    if (isVertical) {
+    if (isVertical)
+    {
         float cx = trackArea.getCentreX();
         startPoint = {cx, trackArea.getBottom() - marginY};
         endPoint = {cx, trackArea.getY() + marginY};
         thumbPoint.x = cx;
         thumbPoint.y = startPoint.y - ((float)slider.valueToProportionOfLength(slider.getValue()) * (startPoint.y - endPoint.y));
-    } else {
+    }
+    else
+    {
         float cy = trackArea.getCentreY();
         startPoint = {trackArea.getX() + marginX, cy};
         endPoint = {trackArea.getRight() - marginX, cy};
@@ -781,40 +921,65 @@ void KineticLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int w
     }
 
     g.setColour(currentPalette.trackDark.brighter(0.35f));
-    juce::Path bgTrack; bgTrack.startNewSubPath(startPoint); bgTrack.lineTo(endPoint);
+    juce::Path bgTrack;
+    bgTrack.startNewSubPath(startPoint);
+    bgTrack.lineTo(endPoint);
     g.strokePath(bgTrack, juce::PathStrokeType(trackThickness, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
-    g.setColour(currentPalette.outline.withAlpha(0.75f)); g.strokePath(bgTrack, juce::PathStrokeType(1.0f));
+    g.setColour(currentPalette.outline.withAlpha(0.75f));
+    g.strokePath(bgTrack, juce::PathStrokeType(1.0f));
 
-    if (slider.getValue() > slider.getMinimum()) {
+    if (slider.getValue() > slider.getMinimum())
+    {
         juce::ColourGradient grad(currentPalette.neonAux, startPoint.x, startPoint.y, currentPalette.neonCore, thumbPoint.x, thumbPoint.y, false);
-        juce::Path fillTrack; fillTrack.startNewSubPath(startPoint); fillTrack.lineTo(thumbPoint);
-        if (slider.isEnabled() && slider.isMouseOverOrDragging()) drawBloom(g, fillTrack, currentPalette.neonCore, trackThickness);
-        g.setGradientFill(grad); g.strokePath(fillTrack, juce::PathStrokeType(trackThickness, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+        juce::Path fillTrack;
+        fillTrack.startNewSubPath(startPoint);
+        fillTrack.lineTo(thumbPoint);
+        if (slider.isEnabled() && slider.isMouseOverOrDragging())
+            drawBloom(g, fillTrack, currentPalette.neonCore, trackThickness);
+        g.setGradientFill(grad);
+        g.strokePath(fillTrack, juce::PathStrokeType(trackThickness, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
     }
 
-    juce::Rectangle<float> fader; fader.setSize(thumbW, thumbH); fader.setCentre(thumbPoint);
-    if (isVertical) {
-        g.setColour(juce::Colours::black.withAlpha(0.5f)); g.fillRoundedRectangle(fader.translated(0, 2), 3.0f);
+    juce::Rectangle<float> fader;
+    fader.setSize(thumbW, thumbH);
+    fader.setCentre(thumbPoint);
+    if (isVertical)
+    {
+        g.setColour(juce::Colours::black.withAlpha(0.5f));
+        g.fillRoundedRectangle(fader.translated(0, 2), 3.0f);
         juce::ColourGradient bg(currentPalette.background.brighter(0.3f), fader.getX(), fader.getY(), currentPalette.background.darker(0.5f), fader.getRight(), fader.getBottom(), false);
-        g.setGradientFill(bg); g.fillRoundedRectangle(fader, 3.0f);
-        g.setColour(slider.isMouseOverOrDragging() ? currentPalette.neonWhite : currentPalette.outline); g.drawRoundedRectangle(fader, 3.0f, 1.0f);
-        g.setColour(currentPalette.neonCore); g.fillRect(fader.getX() + 3, fader.getCentreY() - 1.0f, fader.getWidth() - 6, 2.0f);
-    } else {
-        g.setColour(juce::Colours::black.withAlpha(0.5f)); g.fillEllipse(fader.translated(0, 2));
+        g.setGradientFill(bg);
+        g.fillRoundedRectangle(fader, 3.0f);
+        g.setColour(slider.isMouseOverOrDragging() ? currentPalette.neonWhite : currentPalette.outline);
+        g.drawRoundedRectangle(fader, 3.0f, 1.0f);
+        g.setColour(currentPalette.neonCore);
+        g.fillRect(fader.getX() + 3, fader.getCentreY() - 1.0f, fader.getWidth() - 6, 2.0f);
+    }
+    else
+    {
+        g.setColour(juce::Colours::black.withAlpha(0.5f));
+        g.fillEllipse(fader.translated(0, 2));
         juce::ColourGradient bg(currentPalette.background.brighter(0.2f), fader.getCentreX(), fader.getCentreY(), currentPalette.background.darker(0.8f), fader.getX(), fader.getY(), true);
-        g.setGradientFill(bg); g.fillEllipse(fader);
-        g.setColour(slider.isMouseOverOrDragging() ? currentPalette.neonWhite : currentPalette.outline); g.drawEllipse(fader, 1.5f);
+        g.setGradientFill(bg);
+        g.fillEllipse(fader);
+        g.setColour(slider.isMouseOverOrDragging() ? currentPalette.neonWhite : currentPalette.outline);
+        g.drawEllipse(fader, 1.5f);
         float dotSize = fader.getWidth() * 0.3f;
         auto dotRect = fader.withSizeKeepingCentre(dotSize, dotSize);
-        g.setColour(currentPalette.neonCore); g.fillEllipse(dotRect);
-        if (slider.isMouseOverOrDragging()) {
-            float sine = (std::sin(glowPhase) + 1.0f) * 0.5f; float radius = dotSize * (1.5f + sine * 0.5f);
+        g.setColour(currentPalette.neonCore);
+        g.fillEllipse(dotRect);
+        if (slider.isMouseOverOrDragging())
+        {
+            float sine = (std::sin(glowPhase) + 1.0f) * 0.5f;
+            float radius = dotSize * (1.5f + sine * 0.5f);
             juce::ColourGradient glow(currentPalette.neonCore.withAlpha(0.8f), dotRect.getCentreX(), dotRect.getCentreY(), juce::Colours::transparentBlack, dotRect.getCentreX(), dotRect.getCentreY() - radius, true);
-            g.setGradientFill(glow); g.fillEllipse(dotRect.withSizeKeepingCentre(radius*2, radius*2));
+            g.setGradientFill(glow);
+            g.fillEllipse(dotRect.withSizeKeepingCentre(radius * 2, radius * 2));
         }
     }
 
-    if (showValue && !valueArea.isEmpty() && g.getClipBounds().intersects(valueArea)) {
+    if (showValue && !valueArea.isEmpty() && g.getClipBounds().intersects(valueArea))
+    {
         g.setFont(juce::FontOptions(fontSizeVal));
         g.setColour(currentPalette.neonWhite);
 
@@ -823,13 +988,17 @@ void KineticLookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int w
         juce::String mainText;
         auto tickLabels = slider.getProperties()["tickLabels"];
 
-        if (tickLabels.isArray() && !tickLabels.getArray()->isEmpty() && slider.getInterval() > 0.0) {
+        if (tickLabels.isArray() && !tickLabels.getArray()->isEmpty() && slider.getInterval() > 0.0)
+        {
             int index = juce::roundToInt((slider.getValue() - slider.getMinimum()) / slider.getInterval());
             index = juce::jlimit(0, tickLabels.getArray()->size() - 1, index);
             mainText = tickLabels.getArray()->getReference(index).toString();
-        } else {
+        }
+        else
+        {
             mainText = formatMetric(slider.getValue(), type);
-            if (mainText != "-inf") mainText += suffix;
+            if (mainText != "-inf")
+                mainText += suffix;
         }
 
         g.drawFittedText(mainText, valueArea, juce::Justification::centred, 1);
@@ -842,34 +1011,72 @@ void KineticLookAndFeel::drawToggleButton(juce::Graphics &g, juce::ToggleButton 
     juce::String style = button.getProperties().getWithDefault("style", "normal").toString();
     bool isSwitch = style == "switch" || button.getProperties().contains("isSwitch");
     float disabledAlpha = isSwitch && !button.isEnabled() ? 0.42f : 1.0f;
-    auto colourForState = [disabledAlpha](juce::Colour colour) {
+    auto colourForState = [disabledAlpha](juce::Colour colour)
+    {
         return colour.withMultipliedAlpha(disabledAlpha);
     };
     auto bounds = button.getLocalBounds().toFloat().reduced(2.0f);
     float h = bounds.getHeight();
-    auto textBounds = bounds.removeFromTop(h * 0.45f);
-    g.setFont(juce::FontOptions(getSafeFontSize(h * 0.22f)).withStyle("Bold"));
-    g.setColour(colourForState(currentPalette.neonWhite));
-    g.drawText(button.getButtonText(), textBounds, juce::Justification::centred, true);
 
-    if (isSwitch) {
-        float swH = h * 0.4f; float swW = swH * 2.2f;
+    if (isSwitch)
+    {
+        auto textBounds = bounds.removeFromTop(h * 0.45f);
+        g.setFont(juce::FontOptions(juce::jlimit(9.0f, 12.0f, h * 0.14f)).withStyle("Bold"));
+        g.setColour(colourForState(currentPalette.neonWhite));
+        g.drawText(button.getButtonText(), textBounds, juce::Justification::centred, true);
+
+        float swH = h * 0.4f;
+        float swW = swH * 2.2f;
         auto swRect = bounds.withSizeKeepingCentre(swW, swH);
-        g.setColour(colourForState(currentPalette.trackDark)); g.fillRoundedRectangle(swRect, swH / 2.0f);
-        g.setColour(colourForState(currentPalette.outline)); g.drawRoundedRectangle(swRect, swH / 2.0f, 1.5f);
+        g.setColour(colourForState(currentPalette.trackDark));
+        g.fillRoundedRectangle(swRect, swH / 2.0f);
+        g.setColour(colourForState(currentPalette.outline));
+        g.drawRoundedRectangle(swRect, swH / 2.0f, 1.5f);
         float thumbSize = swH * 0.85f;
         float tx = isOn ? swRect.getRight() - thumbSize - 2.0f : swRect.getX() + 2.0f;
-        g.setColour(colourForState(isOn ? currentPalette.neonCore : juce::Colours::grey)); g.fillEllipse(tx, swRect.getCentreY() - thumbSize / 2.0f, thumbSize, thumbSize);
-        if (isOn && (button.isMouseOver() || button.isDown())) {
+        g.setColour(colourForState(isOn ? currentPalette.neonCore : juce::Colours::grey));
+        g.fillEllipse(tx, swRect.getCentreY() - thumbSize / 2.0f, thumbSize, thumbSize);
+        if (isOn && (button.isMouseOver() || button.isDown()))
+        {
             float glowRad = thumbSize * 0.8f;
-            juce::ColourGradient glow(colourForState(currentPalette.neonCore), tx + thumbSize/2, swRect.getCentreY(), juce::Colours::transparentBlack, tx + thumbSize/2, swRect.getCentreY() - glowRad, true);
-            g.setGradientFill(glow); g.fillEllipse(tx + thumbSize/2 - glowRad, swRect.getCentreY() - glowRad, glowRad*2, glowRad*2);
+            juce::ColourGradient glow(colourForState(currentPalette.neonCore), tx + thumbSize / 2, swRect.getCentreY(), juce::Colours::transparentBlack, tx + thumbSize / 2, swRect.getCentreY() - glowRad, true);
+            g.setGradientFill(glow);
+            g.fillEllipse(tx + thumbSize / 2 - glowRad, swRect.getCentreY() - glowRad, glowRad * 2, glowRad * 2);
         }
-    } else {
-        float boxSize = h * 0.4f; auto boxRect = bounds.withSizeKeepingCentre(boxSize, boxSize);
-        g.setColour(currentPalette.trackDark); g.fillRoundedRectangle(boxRect, 4.0f);
-        if (isOn) { g.setColour(currentPalette.neonCore); g.fillRoundedRectangle(boxRect.reduced(2.0f), 2.0f); }
-        g.setColour(currentPalette.outline); g.drawRoundedRectangle(boxRect, 4.0f, 1.5f);
+    }
+    else
+    {
+        auto toggleBounds = bounds;
+        toggleBounds.removeFromTop(h * 0.45f);
+        float boxSize = h * 0.3f;
+        auto boxRect = toggleBounds.withSizeKeepingCentre(boxSize, boxSize);
+        auto padRect = boxRect.expanded(h * 0.04f);
+        const float titleFontSize = juce::jlimit(10.0f, 12.0f, h * 0.13f);
+        const float titleHeight = titleFontSize + 3.0f;
+        auto textBounds = juce::Rectangle<float>(bounds.getX(),
+                                                  padRect.getY() - titleHeight - 1.0f,
+                                                  bounds.getWidth(), titleHeight);
+        g.setFont(juce::FontOptions(titleFontSize).withStyle("Bold"));
+        g.setColour(currentPalette.neonWhite);
+        g.drawText(button.getButtonText(), textBounds,
+                   juce::Justification::centredBottom, true);
+
+        g.setColour(currentPalette.trackDark.darker(0.2f));
+        g.fillRoundedRectangle(padRect, 4.0f);
+        g.setColour(currentPalette.outline.withAlpha(0.35f));
+        g.drawRoundedRectangle(padRect, 4.0f, 1.0f);
+
+        g.setColour(isOn ? currentPalette.neonCore.withAlpha(0.72f)
+                         : currentPalette.background.darker(0.2f));
+        g.fillRoundedRectangle(boxRect, 3.0f);
+        if (isOn)
+        {
+            g.setColour(currentPalette.neonCore.withAlpha(0.22f));
+            g.drawRoundedRectangle(boxRect.expanded(1.0f), 4.0f, 1.5f);
+        }
+        g.setColour(isOn ? currentPalette.neonCore
+                         : currentPalette.outline.withAlpha(0.75f));
+        g.drawRoundedRectangle(boxRect, 3.0f, 1.0f);
     }
 }
 
@@ -884,7 +1091,7 @@ void KineticLookAndFeel::drawButtonBackground(juce::Graphics &g, juce::Button &b
     g.drawRoundedRectangle(b, 6, 1.5f);
 }
 
-void KineticLookAndFeel::drawButtonText (juce::Graphics& g, juce::TextButton& button, bool isMouseOverButton, bool isButtonDown)
+void KineticLookAndFeel::drawButtonText(juce::Graphics &g, juce::TextButton &button, bool isMouseOverButton, bool isButtonDown)
 {
     // Logica originale per SYNC, POWER, ecc.
     float fontSize = getSafeFontSize(button.getHeight() * 0.32f);
@@ -894,38 +1101,52 @@ void KineticLookAndFeel::drawButtonText (juce::Graphics& g, juce::TextButton& bu
     g.drawText(button.getButtonText(), button.getLocalBounds(), juce::Justification::centred, true);
 }
 
-
-
-
 void KineticLookAndFeel::drawComboBox(juce::Graphics &g, int, int height, bool isButtonDown, int, int, int, int, juce::ComboBox &box)
 {
     auto b = box.getLocalBounds().toFloat().reduced(1);
-    g.setColour(currentPalette.trackDark); g.fillRoundedRectangle(b, 6);
+    g.setColour(currentPalette.trackDark);
+    g.fillRoundedRectangle(b, 6);
     g.setColour(box.isMouseOver() ? currentPalette.neonCore : currentPalette.outline);
-    if (box.isMouseOver() || isButtonDown) { juce::Path p; p.addRoundedRectangle(b, 6); drawBloom(g, p, currentPalette.neonCore, 1.5f); }
+    if (box.isMouseOver() || isButtonDown)
+    {
+        juce::Path p;
+        p.addRoundedRectangle(b, 6);
+        drawBloom(g, p, currentPalette.neonCore, 1.5f);
+    }
     g.drawRoundedRectangle(b, 6, 1.5f);
     auto arrow = b.removeFromRight(height * 0.6f);
-    juce::Path p; float cx = arrow.getCentreX(); float cy = arrow.getCentreY(); float s = height * 0.15f;
+    juce::Path p;
+    float cx = arrow.getCentreX();
+    float cy = arrow.getCentreY();
+    float s = height * 0.15f;
     p.addTriangle(cx - s, cy - s / 2, cx + s, cy - s / 2, cx, cy + s);
-    g.setColour(currentPalette.neonWhite); g.fillPath(p);
+    g.setColour(currentPalette.neonWhite);
+    g.fillPath(p);
 }
 
 void KineticLookAndFeel::drawPopupMenuItem(juce::Graphics &g, const juce::Rectangle<int> &area, bool, bool, bool isHighlighted, bool, bool, const juce::String &text, const juce::String &, const juce::Drawable *, const juce::Colour *)
 {
-    if (isHighlighted) { g.setColour(currentPalette.neonAux.withAlpha(0.6f)); g.fillRect(area); }
-    else { g.setColour(currentPalette.background.brighter(0.15f)); g.fillRect(area); }
+    if (isHighlighted)
+    {
+        g.setColour(currentPalette.neonAux.withAlpha(0.6f));
+        g.fillRect(area);
+    }
+    else
+    {
+        g.setColour(currentPalette.background.brighter(0.15f));
+        g.fillRect(area);
+    }
     g.setColour(isHighlighted ? currentPalette.neonWhite : currentPalette.neonWhite.withAlpha(0.8f));
     g.setFont(juce::FontOptions(18.0f));
     g.drawText(text, area.reduced(10, 0), juce::Justification::centredLeft, true);
 }
 
-
-void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<float> bounds, 
-                                          float currentLevel, int style, 
-                                          const juce::NamedValueSet& properties)
+void KineticLookAndFeel::drawKineticMeter(juce::Graphics &g, juce::Rectangle<float> bounds,
+                                          float currentLevel, int style,
+                                          const juce::NamedValueSet &properties)
 {
     auto palette = getCurrentPalette();
-    
+
     // Estrazione parametri di controllo da properties
     bool isSharp = properties.getWithDefault("isSharp", false);
     float glowMultiplier = properties.getWithDefault("glowMultiplier", 1.0f);
@@ -947,7 +1168,7 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
 
     // Sfondo comune
     g.setColour(palette.background.darker(0.8f));
-    
+
     if (style == 0) // Segmented
     {
         const juce::String orientation =
@@ -957,16 +1178,26 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
         jassert(isVertical || isHorizontal);
         if (!isVertical && !isHorizontal)
             return;
-        
+
         // Gestione range di scala dinamico
         float minDB = properties.getWithDefault("rangeMin", -40.0f);
         float maxDB = properties.getWithDefault("rangeMax", 6.0f);
         float currentDB = juce::jlimit(minDB, maxDB, (float)juce::Decibels::gainToDecibels(currentLevel, minDB));
 
-        juce::Rectangle<float> ledArea = isVertical ? bounds.removeFromLeft(bounds.getWidth() * 0.6f) : bounds.removeFromTop(bounds.getHeight() * 0.6f);
-        juce::Rectangle<float> textArea = bounds;
+        juce::Rectangle<float> ledArea;
+        juce::Rectangle<float> textArea;
+        if (isVertical)
+        {
+            ledArea = bounds;
+            textArea = bounds.reduced(2.0f, 0.0f);
+        }
+        else
+        {
+            ledArea = bounds.removeFromTop(bounds.getHeight() * 0.6f);
+            textArea = bounds;
+        }
 
-        g.fillRoundedRectangle(ledArea, 3.0f);
+        g.fillRect(ledArea);
 
         int numSegments = properties.getWithDefault("numSegments", 20);
         float gap = 1.5f;
@@ -977,8 +1208,31 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
             float segDB = juce::jmap(prop, minDB, maxDB);
             bool isLit = (currentDB >= segDB);
 
-            juce::Colour segCol = palette.neonAux.interpolatedWith(palette.neonCore, prop);
-            if (!isLit) segCol = palette.background.darker(0.3f);
+            const auto semanticMeterColour = [](float db)
+            {
+                const auto cyan = juce::Colour::fromRGB(0, 190, 220);
+                const auto green = juce::Colour::fromRGB(40, 210, 110);
+                const auto amber = juce::Colour::fromRGB(255, 185, 35);
+                const auto red = juce::Colour::fromRGB(235, 55, 45);
+
+                if (db <= -24.0f)
+                    return cyan.interpolatedWith(green, juce::jmap(juce::jlimit(-48.0f, -24.0f, db), -48.0f, -24.0f, 0.0f, 1.0f));
+                if (db <= -12.0f)
+                    return green;
+                if (db <= -6.0f)
+                    return green.interpolatedWith(amber, juce::jmap(db, -12.0f, -6.0f, 0.0f, 1.0f));
+                if (db <= -3.0f)
+                    return amber;
+                return amber.interpolatedWith(red, juce::jmap(juce::jlimit(-3.0f, 0.0f, db), -3.0f, 0.0f, 0.0f, 1.0f));
+            };
+
+            juce::Colour segCol = isVertical
+                                      ? semanticMeterColour(segDB)
+                                      : palette.neonAux.interpolatedWith(palette.neonCore, prop);
+            if (!isLit)
+                segCol = isVertical
+                             ? palette.background.interpolatedWith(segCol, 0.08f)
+                             : palette.background.darker(0.3f);
 
             if (isVertical)
             {
@@ -988,7 +1242,7 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
 
                 g.setColour(segCol);
                 g.fillRect(rect);
-                
+
                 if (isLit && !isSharp) // Applica contorno sfumato solo se non è Sharp
                 {
                     g.setColour(palette.neonWhite.withAlpha(0.8f));
@@ -1018,25 +1272,41 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
 
         // Disegno tacche e label basate su scaleType
         g.setColour(palette.outline.withAlpha(0.8f));
-        g.setFont(juce::FontOptions(isVertical ? textArea.getWidth() * 0.45f : textArea.getHeight() * 0.5f));
+        const float tickLabelFontSize = isVertical
+                                            ? juce::jlimit(9.0f, 10.0f, textArea.getHeight() * 0.04f)
+                                            : textArea.getHeight() * 0.5f;
+        g.setFont(juce::FontOptions(tickLabelFontSize));
 
         std::vector<int> dbMarks;
         if (isVuScale)
-            dbMarks = { -20, -10, -7, -5, -3, -1, 0, 1, 2, 3 };
+            dbMarks = {-20, -10, -7, -5, -3, -1, 0, 1, 2, 3};
         else if (isDbScale || isLinearScale)
-            dbMarks = { -40, -24, -12, -6, 0, 3, 6 };
+            dbMarks = {-40, -24, -12, -6, 0, 3, 6};
 
         for (int db : dbMarks)
         {
+            if ((float)db < minDB || (float)db > maxDB)
+                continue;
+
             float prop = juce::jmap((float)db, minDB, maxDB, 0.0f, 1.0f);
             if (isVertical)
             {
                 float yPos = ledArea.getBottom() - (prop * ledArea.getHeight());
-                g.drawHorizontalLine((int)yPos, ledArea.getRight(), ledArea.getRight() + 3.0f);
-                g.setColour(db > 0 ? palette.neonCore : palette.neonWhite.withAlpha(0.7f));
-                
                 juce::String labelStr = scaleLabel(db);
-                g.drawText(labelStr, textArea.withY(yPos - 10).withHeight(20), juce::Justification::centredLeft, false);
+                const float labelHeight = juce::jmin(14.0f, textArea.getHeight());
+
+                const float labelY =
+                    juce::jlimit(textArea.getY(),
+                                 textArea.getBottom() - labelHeight,
+                                 yPos - labelHeight * 0.5f);
+                auto labelArea = textArea.withY(labelY).withHeight(labelHeight);
+
+                g.setColour(palette.background.darker(0.8f).withAlpha(0.8f));
+                g.drawText(labelStr, labelArea.translated(0.0f, 1.0f),
+                           juce::Justification::centred, false);
+                g.setColour(palette.neonWhite.withAlpha(0.68f));
+                g.drawText(labelStr, labelArea,
+                           juce::Justification::centred, false);
             }
             else
             {
@@ -1050,8 +1320,11 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
                 g.drawText(labelStr, textArea.withX(labelX).withWidth(labelWidth), juce::Justification::centred, false);
             }
         }
-        g.setColour(palette.outline.withAlpha(0.6f));
-        g.drawRoundedRectangle(ledArea, 3.0f, 1.0f);
+        if (isHorizontal)
+        {
+            g.setColour(palette.outline.withAlpha(0.6f));
+            g.drawRoundedRectangle(ledArea, 3.0f, 1.0f);
+        }
     }
     else // Analog
     {
@@ -1078,9 +1351,9 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
 
         std::vector<int> dbMarks;
         if (isVuScale)
-            dbMarks = { -20, -10, -7, -5, -3, -1, 0, 1, 2, 3 };
+            dbMarks = {-20, -10, -7, -5, -3, -1, 0, 1, 2, 3};
         else if (isDbScale || isLinearScale)
-            dbMarks = { -40, -30, -20, -10, -5, 0, 3, 6 };
+            dbMarks = {-40, -30, -20, -10, -5, 0, 3, 6};
         g.setFont(juce::FontOptions(radius * 0.15f));
 
         for (int db : dbMarks)
@@ -1102,7 +1375,7 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
         }
 
         juce::Point<float> needleEnd(pivotX + std::sin(needleAngle) * radius * 0.95f, pivotY - std::cos(needleAngle) * radius * 0.95f);
-        
+
         if (isSharp)
         {
             // Contorno netto per la lancetta
@@ -1125,12 +1398,13 @@ void KineticLookAndFeel::drawKineticMeter(juce::Graphics& g, juce::Rectangle<flo
     }
 }
 
-void KineticLookAndFeel::drawKineticScope(juce::Graphics& g, juce::Rectangle<float> bounds, 
-                                          const std::array<float, 128>& fifo, int writeIdx, 
-                                          const juce::NamedValueSet& properties)
+void KineticLookAndFeel::drawKineticScope(juce::Graphics &g, juce::Rectangle<float> bounds,
+                                          const std::array<float, 128> *preFifo, int preWriteIdx,
+                                          const std::array<float, 128> *postFifo, int postWriteIdx,
+                                          const juce::NamedValueSet &properties)
 {
     auto palette = getCurrentPalette();
-    
+
     bool isSharp = properties.getWithDefault("isSharp", false);
     float glowMultiplier = properties.getWithDefault("glowMultiplier", 1.0f);
     juce::String gridStyle = properties.getWithDefault("gridStyle", "radar").toString();
@@ -1152,11 +1426,13 @@ void KineticLookAndFeel::drawKineticScope(juce::Graphics& g, juce::Rectangle<flo
         g.setColour(palette.outline.withAlpha(0.12f));
         int numLinesX = 10;
         int numLinesY = 8;
-        for (int i = 1; i < numLinesX; ++i) {
+        for (int i = 1; i < numLinesX; ++i)
+        {
             float xPos = plotBounds.getX() + (plotBounds.getWidth() * i / numLinesX);
             g.drawVerticalLine((int)xPos, plotBounds.getY(), plotBounds.getBottom());
         }
-        for (int i = 1; i < numLinesY; ++i) {
+        for (int i = 1; i < numLinesY; ++i)
+        {
             float yPos = plotBounds.getY() + (plotBounds.getHeight() * i / numLinesY);
             g.drawHorizontalLine((int)yPos, plotBounds.getX(), plotBounds.getRight());
         }
@@ -1176,42 +1452,50 @@ void KineticLookAndFeel::drawKineticScope(juce::Graphics& g, juce::Rectangle<flo
     g.setColour(palette.neonAux.withAlpha(0.25f));
     g.drawHorizontalLine((int)plotBounds.getCentreY(), plotBounds.getX(), plotBounds.getRight());
 
-    // Ricostruzione percorso traccia
-    juce::Path path;
-    float midY = plotBounds.getCentreY();
-    float heightFactor = plotBounds.getHeight() * 0.45f;
-    float width = plotBounds.getWidth();
+    const float midY = plotBounds.getCentreY();
+    const float heightFactor = plotBounds.getHeight() * 0.45f;
+    const float width = plotBounds.getWidth();
 
-    int readIdx = writeIdx;
-    for (int i = 0; i < 128; ++i)
+    const auto makePath = [&](const std::array<float, 128> &fifo, int writeIdx)
     {
-        float x = plotBounds.getX() + ((i / 127.0f) * width);
-        float sample = juce::jlimit(-1.1f, 1.1f, fifo[readIdx]);
-        float y = midY - (sample * heightFactor);
+        juce::Path path;
+        int readIdx = writeIdx;
+        for (int i = 0; i < 128; ++i)
+        {
+            const float x = plotBounds.getX() + ((i / 127.0f) * width);
+            const float sample = juce::jlimit(-1.1f, 1.1f, fifo[readIdx]);
+            const float y = midY - (sample * heightFactor);
+            if (i == 0)
+                path.startNewSubPath(x, y);
+            else
+                path.lineTo(x, y);
+            readIdx = (readIdx + 1) % 128;
+        }
+        return path;
+    };
 
-        if (i == 0) path.startNewSubPath(x, y);
-        else path.lineTo(x, y);
-
-        readIdx = (readIdx + 1) % 128;
+    if (preFifo != nullptr)
+    {
+        const auto prePath = makePath(*preFifo, preWriteIdx);
+        if (!isSharp)
+        {
+            g.setColour(palette.neonAux.withAlpha(0.12f * glowMultiplier));
+            g.strokePath(prePath, juce::PathStrokeType(4.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+        }
+        g.setColour(palette.neonAux.withAlpha(0.5f));
+        g.strokePath(prePath, juce::PathStrokeType(1.2f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
     }
 
-    // Rendering della traccia in base allo sharpness richiesto
-    if (isSharp)
+    if (postFifo != nullptr)
     {
-        g.setColour(palette.neonWhite);
-        g.strokePath(path, juce::PathStrokeType(1.5f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
-    }
-    else
-    {
-        // Spessore e bloom regolati da glowMultiplier
-        g.setColour(palette.neonCore.withAlpha(0.25f * glowMultiplier));
-        g.strokePath(path, juce::PathStrokeType(6.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
-
-        g.setColour(palette.neonCore.withAlpha(0.6f * glowMultiplier));
-        g.strokePath(path, juce::PathStrokeType(3.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
-
-        g.setColour(palette.neonWhite.withAlpha(0.95f));
-        g.strokePath(path, juce::PathStrokeType(1.2f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+        const auto postPath = makePath(*postFifo, postWriteIdx);
+        if (!isSharp)
+        {
+            g.setColour(palette.neonCore.withAlpha(0.22f * glowMultiplier));
+            g.strokePath(postPath, juce::PathStrokeType(6.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+        }
+        g.setColour(palette.neonCore.withAlpha(0.92f));
+        g.strokePath(postPath, juce::PathStrokeType(1.5f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
     }
 
     // Cornice esterna

@@ -712,7 +712,7 @@ void JX11AudioProcessorEditor::paintOverChildren(juce::Graphics &g)
 
 
     // --- GRIGLIA DI DEBUG ---
-    #define DO_GRID 1
+    // #define DO_GRID 1
     #if DO_GRID
         drawDebugGrid(g);
     #endif

@@ -41,8 +41,9 @@ public:
                                    float currentLevel, int style, 
                                    const juce::NamedValueSet& properties);
 
-    virtual void drawKineticScope (juce::Graphics& g, juce::Rectangle<float> bounds, 
-                                   const std::array<float, 128>& fifo, int writeIdx,
+    virtual void drawKineticScope (juce::Graphics& g, juce::Rectangle<float> bounds,
+                                   const std::array<float, 128>* preFifo, int preWriteIdx,
+                                   const std::array<float, 128>* postFifo, int postWriteIdx,
                                    const juce::NamedValueSet& properties);
     
     // Logica Animazione
@@ -123,7 +124,13 @@ public:
 
     void updateLevel(float newLevel)
     {
-        currentLevel = juce::jmax(newLevel, currentLevel - 0.03f);
+        if (newLevel >= currentLevel)
+            currentLevel = newLevel;
+        else
+            currentLevel += (newLevel - currentLevel) * 0.18f;
+
+        if (currentLevel < 1.0e-5f)
+            currentLevel = 0.0f;
         repaint();
     }
 
@@ -146,15 +153,31 @@ private:
 class KineticScope : public juce::Component
 {
 public:
-    juce::NamedValueSet properties; // Contiene gridStyle, glowMultiplier, isSharp, ecc.
+    juce::NamedValueSet properties;
 
-    void fetchFromProcessor(const std::array<std::atomic<float>, 128> &procFifo, int procWriteIdx)
+    void setTapPoints(bool usePre, bool usePost)
     {
+        wantsPre = usePre;
+        wantsPost = usePost;
+        if (wantsPre && wantsPost && !secondaryFifo)
+            secondaryFifo = std::make_unique<std::array<float, 128>>();
+    }
+
+    void fetchPreFromProcessor(const std::array<std::atomic<float>, 128> &procFifo, int procWriteIdx)
+    {
+        auto &destination = primaryFifo;
         for (int i = 0; i < 128; ++i)
-        {
-            fifo[i] = procFifo[i].load(std::memory_order_relaxed);
-        }
-        writeIdx = procWriteIdx;
+            destination[i] = procFifo[i].load(std::memory_order_relaxed);
+        preWriteIdx = procWriteIdx;
+        repaint();
+    }
+
+    void fetchPostFromProcessor(const std::array<std::atomic<float>, 128> &procFifo, int procWriteIdx)
+    {
+        auto &destination = (wantsPre && wantsPost) ? *secondaryFifo : primaryFifo;
+        for (int i = 0; i < 128; ++i)
+            destination[i] = procFifo[i].load(std::memory_order_relaxed);
+        postWriteIdx = procWriteIdx;
         repaint();
     }
 
@@ -162,11 +185,20 @@ public:
     {
         if (auto *lnf = dynamic_cast<KineticLookAndFeel *>(&getLookAndFeel()))
         {
-            lnf->drawKineticScope(g, getLocalBounds().toFloat(), fifo, writeIdx, properties);
+            const auto *pre = wantsPre ? &primaryFifo : nullptr;
+            const auto *post = wantsPost
+                                   ? ((wantsPre && wantsPost) ? secondaryFifo.get() : &primaryFifo)
+                                   : nullptr;
+            lnf->drawKineticScope(g, getLocalBounds().toFloat(),
+                                  pre, preWriteIdx, post, postWriteIdx, properties);
         }
     }
 
 private:
-    std::array<float, 128> fifo{0.0f};
-    int writeIdx = 0;
+    std::array<float, 128> primaryFifo{0.0f};
+    std::unique_ptr<std::array<float, 128>> secondaryFifo;
+    int preWriteIdx = 0;
+    int postWriteIdx = 0;
+    bool wantsPre = false;
+    bool wantsPost = true;
 };
