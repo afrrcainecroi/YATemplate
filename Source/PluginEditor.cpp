@@ -579,28 +579,76 @@ void JX11AudioProcessorEditor::resized()
     if (!layoutData.isObject()) return;
 
     juce::Grid grid;
-    
+
     int numRows = layoutData["grid"]["rows"];
     int numCols = layoutData["grid"]["cols"];
 
-    for (int i = 0; i < numRows; ++i) 
-        grid.templateRows.add(juce::Grid::TrackInfo(juce::Grid::Fr(1)));
-    
-    for (int i = 0; i < numCols; ++i) 
-        grid.templateColumns.add(juce::Grid::TrackInfo(juce::Grid::Fr(1)));
+    auto rowTracks = layoutData["grid"]["row-tracks"];
+    auto colTracks = layoutData["grid"]["col-tracks"];
+
+    //
+    // Physical layout v2:
+    //
+    // If explicit variable-width track weights are present,
+    // use them directly.
+    //
+    // Legacy/topological layouts do not provide these arrays,
+    // therefore they retain the historical Fr(1) behaviour.
+    //
+
+if (rowTracks.isArray())
+{
+    for (auto& track : *rowTracks.getArray())
+    {
+        const auto pixels =
+            static_cast<float>((double) track);
+
+        grid.templateRows.add(
+            juce::Grid::TrackInfo(
+                juce::Grid::Px(pixels)));
+    }
+}
+else
+{
+    for (int i = 0; i < numRows; ++i)
+        grid.templateRows.add(
+            juce::Grid::TrackInfo(
+                juce::Grid::Fr(1)));
+}
+
+if (colTracks.isArray())
+{
+    for (auto& track : *colTracks.getArray())
+    {
+        const auto pixels =
+            static_cast<float>((double) track);
+
+        grid.templateColumns.add(
+            juce::Grid::TrackInfo(
+                juce::Grid::Px(pixels)));
+    }
+}
+else
+{
+    for (int i = 0; i < numCols; ++i)
+        grid.templateColumns.add(
+            juce::Grid::TrackInfo(
+                juce::Grid::Fr(1)));
+}
+
 
     auto componentsList = layoutData["components"];
     if (componentsList.isArray())
     {
-        for (auto& comp : *componentsList.getArray())
+        for (auto &comp : *componentsList.getArray())
         {
             juce::String id = comp["var"].toString();
-            
+
             auto it = componentMap.find(id);
             if (it != componentMap.end())
             {
-                juce::Component* target = it->second;
-                
+                juce::Component *target = it->second;
+
                 int row = comp["row"];
                 int col = comp["col"];
                 int rowSpan = comp["rowSpan"];
@@ -608,31 +656,30 @@ void JX11AudioProcessorEditor::resized()
 
                 juce::GridItem item(target);
                 item = item.withArea(row, col, row + rowSpan, col + colSpan);
-                
+
                 // Calcoliamo i moltiplicatori di scala (basati su standardScreenWidth)
                 float scaleX = area.getWidth() / (float)ap.drawingUtils.standardScreenWidth;
                 float scaleY = area.getHeight() / (float)ap.drawingUtils.standardScreenHeight;
 
                 // Leggiamo i valori JSON e LI MOLTIPLICHIAMO per la scala
-                float m_base = (float)comp.getProperty("margin", 4.0f);
-                float m_lr   = (float)comp.getProperty("margin-lr", m_base) * scaleX; // Scala X
-                float m_tb   = (float)comp.getProperty("margin-tb", m_base) * scaleY; // Scala Y
+                float m_base = (float)comp.getProperty("margin", 0.0f);
+                float m_lr = (float)comp.getProperty("margin-lr", m_base) * scaleX; // Scala X
+                float m_tb = (float)comp.getProperty("margin-tb", m_base) * scaleY; // Scala Y
 
                 // if (id == "footerLink" || id == "lblCopyright")
                 // {
                 //     m_tb = 0.0f; // Margine verticale zero
                 //     item.alignSelf = juce::GridItem::AlignSelf::end;
                 //     item.justifySelf = juce::GridItem::JustifySelf::start; // Per il link a sinistra
-                    
+
                 //     // Rimuoviamo eventuali bordi interni della Label che potrebbero rubare pixel
                 //     if (auto* lbl = dynamic_cast<juce::Label*>(target))
                 //         lbl->setBorderSize(juce::BorderSize<int>(0));
                 // }
-                
-                item.margin = juce::GridItem::Margin(m_tb, m_lr, m_tb, m_lr);
-                
-                grid.items.add(item);
 
+                item.margin = juce::GridItem::Margin(m_tb, m_lr, m_tb, m_lr);
+
+                grid.items.add(item);
             }
         }
     }
@@ -640,34 +687,39 @@ void JX11AudioProcessorEditor::resized()
     grid.performLayout(area.reduced(10));
 }
 
-void JX11AudioProcessorEditor::drawDebugGrid(juce::Graphics &g) {
-    //Disegna la griglia, se richiesto
+void JX11AudioProcessorEditor::drawDebugGrid(juce::Graphics &g)
+{
+    // Disegna la griglia, se richiesto
     if (layoutData.isObject())
     {
         int numRows = layoutData["grid"]["rows"];
         int numCols = layoutData["grid"]["cols"];
-        
+
         // La griglia è calcolata sull'area ridotta di 10 (come nel resized)
         auto area = getLocalBounds().reduced(10).toFloat();
-        
+
         g.setColour(juce::Colours::cyan.withAlpha(0.35f));
         g.setFont(10.0f);
-        
+
         float cellW = area.getWidth() / numCols;
         float cellH = area.getHeight() / numRows;
-        
+
         // Disegna Righe
-        for (int r = 0; r <= numRows; ++r) {
+        for (int r = 0; r <= numRows; ++r)
+        {
             float y = area.getY() + r * cellH;
             g.drawHorizontalLine((int)y, area.getX(), area.getRight());
-            if (r < numRows) g.drawText(juce::String(r + 1), (int)area.getX() + 2, (int)y + 2, 20, 15, juce::Justification::topLeft, false);
+            if (r < numRows)
+                g.drawText(juce::String(r + 1), (int)area.getX() + 2, (int)y + 2, 20, 15, juce::Justification::topLeft, false);
         }
-        
+
         // Disegna Colonne
-        for (int c = 0; c <= numCols; ++c) {
+        for (int c = 0; c <= numCols; ++c)
+        {
             float x = area.getX() + c * cellW;
             g.drawVerticalLine((int)x, area.getY(), area.getBottom());
-            if (c < numCols) g.drawText(juce::String(c + 1), (int)x + 2, (int)area.getY() + 15, 20, 15, juce::Justification::topLeft, false);
+            if (c < numCols)
+                g.drawText(juce::String(c + 1), (int)x + 2, (int)area.getY() + 15, 20, 15, juce::Justification::topLeft, false);
         }
     }
 }
@@ -689,17 +741,19 @@ void JX11AudioProcessorEditor::paintOverChildren(juce::Graphics &g)
         g.drawFittedText("BYPASSED", getLocalBounds(), juce::Justification::centred, 1);
 
         // Disabilita tutti i componenti tranne bypass
-        for (auto* child : getChildren())
+        for (auto *child : getChildren())
         {
             if (child != &bypass)
             {
                 child->setEnabled(false);
             }
         }
-    } else {
-        //Rimette a posto
-        // Abilita tutti i componenti tranne bypass
-        for (auto* child : getChildren())
+    }
+    else
+    {
+        // Rimette a posto
+        //  Abilita tutti i componenti tranne bypass
+        for (auto *child : getChildren())
         {
             if (child != &bypass)
             {
@@ -707,14 +761,11 @@ void JX11AudioProcessorEditor::paintOverChildren(juce::Graphics &g)
             }
         }
     }
-    /// PAINT_OVER_CHILDREN END
+/// PAINT_OVER_CHILDREN END
 
-
-
-    // --- GRIGLIA DI DEBUG ---
-    // #define DO_GRID 1
-    #if DO_GRID
-        drawDebugGrid(g);
-    #endif
-    
+// --- GRIGLIA DI DEBUG ---
+// #define DO_GRID 1
+#if DO_GRID
+    drawDebugGrid(g);
+#endif
 }
