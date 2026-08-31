@@ -595,6 +595,17 @@ void JX11AudioProcessorEditor::resized()
     // Legacy/topological layouts do not provide these arrays,
     // therefore they retain the historical Fr(1) behaviour.
     //
+    
+        const auto layoutArea = area.reduced(10);
+
+const float colTrackScale =
+    layoutArea.getWidth() /
+    (float)ap.drawingUtils.standardScreenWidth;
+
+const float rowTrackScale =
+    layoutArea.getHeight() /
+    (float)ap.drawingUtils.standardScreenHeight;
+
 
 if (rowTracks.isArray())
 {
@@ -605,7 +616,7 @@ if (rowTracks.isArray())
 
         grid.templateRows.add(
             juce::Grid::TrackInfo(
-                juce::Grid::Px(pixels)));
+                juce::Grid::Px(pixels * colTrackScale)));
     }
 }
 else
@@ -625,7 +636,7 @@ if (colTracks.isArray())
 
         grid.templateColumns.add(
             juce::Grid::TrackInfo(
-                juce::Grid::Px(pixels)));
+                juce::Grid::Px(pixels * colTrackScale)));
     }
 }
 else
@@ -684,7 +695,7 @@ else
         }
     }
 
-    grid.performLayout(area.reduced(10));
+    grid.performLayout(layoutArea);
 }
 
 void JX11AudioProcessorEditor::drawDebugGrid(juce::Graphics &g)
