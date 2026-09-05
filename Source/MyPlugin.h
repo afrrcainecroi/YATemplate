@@ -28,11 +28,13 @@ public:
 
 void processAudio(
     juce::AudioBuffer<float>& buffer,
-    int oversamplingFactor);
+    int oversamplingFactor,
+    const HostTransportInfo& transport);
 
 void processAudio(
     juce::dsp::AudioBlock<float>& buffer,
-    int oversamplingFactor);
+    int oversamplingFactor,
+    const HostTransportInfo& transport);
 
 
     JX11AudioProcessor *processor=nullptr;

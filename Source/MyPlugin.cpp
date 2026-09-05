@@ -22,7 +22,8 @@ MyPlugin::~MyPlugin()
 
 void MyPlugin::processAudio(
     juce::AudioBuffer<float>& buffer,
-    int oversamplingFactor)
+    int oversamplingFactor,
+    const HostTransportInfo& transport)
 {
     /// MYPLUGIN_PROCESS_AUDIO_BUFFER START
 
@@ -32,7 +33,8 @@ void MyPlugin::processAudio(
 
 void MyPlugin::processAudio(
     juce::dsp::AudioBlock<float>& buffer,
-    int oversamplingFactor)
+    int oversamplingFactor,
+    const HostTransportInfo& transport)
 {
     /// MYPLUGIN_PROCESS_AUDIO_BLOCK START
 

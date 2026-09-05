@@ -166,26 +166,49 @@ void JX11AudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Mi
     // mono o stereo, null'altro!
     jassert(buffer.getNumChannels() == 1 || buffer.getNumChannels() == 2);
 
+    // Construct a fresh host snapshot for every block.  In particular, this
+    // resets all Optional fields and state flags before querying the host.
+    HostTransportInfo nextHostTransport;
     if (auto *playHead = getPlayHead())
     {
+        nextHostTransport.playHeadAvailable = true;
         if (auto posInfo = playHead->getPosition())
         {
-            value_info_BPM = posInfo->getBpm();                                             // Returns the bpm, if available
-            value_info_timeInSeconds = posInfo->getTimeInSeconds();                         // Returns the number of seconds that have elapsed.
-            value_info_ppqPosition = posInfo->getPpqPosition();                             // The current playback position in "Pulses Per Quarter Note"
-            value_info_isPlaying = posInfo->getIsPlaying();                                 // Whether the host is currently playing
-            value_info_timeInSamples = posInfo->getTimeInSamples();                         // the number of samples that have elapsed.
-            value_info_timeSignature = posInfo->getTimeSignature();                         // The time signature, if available
-            value_info_loopPoints = posInfo->getLoopPoints();                               // The loop points, if available
-            value_info_barCount = posInfo->getBarCount();                                   // The number of bars in the current loop, if available
-            value_info_ppqPositionOfLastBarStart = posInfo->getPpqPositionOfLastBarStart(); // The position of the start of the last bar, in units of quarter-notes
-            value_info_frameRate = posInfo->getFrameRate();                                 // The video frame rate, if available
-            value_info_editOriginTime = posInfo->getEditOriginTime();                       // The origin time of the current edit, in seconds
-            value_info_hostTimeNs = posInfo->getHostTimeNs();                               // The current host time in nanoseconds
-            value_info_isRecording = posInfo->getIsRecording();                             // Whether the host is currently recording
-            value_info_isLooping = posInfo->getIsLooping();                                 // Whether the host is currently looping
+            nextHostTransport.positionAvailable = true;
+            nextHostTransport.bpm = posInfo->getBpm();
+            nextHostTransport.timeInSeconds = posInfo->getTimeInSeconds();
+            nextHostTransport.ppqPosition = posInfo->getPpqPosition();
+            nextHostTransport.isPlaying = posInfo->getIsPlaying();
+            nextHostTransport.timeInSamples = posInfo->getTimeInSamples();
+            nextHostTransport.timeSignature = posInfo->getTimeSignature();
+            nextHostTransport.loopPoints = posInfo->getLoopPoints();
+            nextHostTransport.barCount = posInfo->getBarCount();
+            nextHostTransport.ppqPositionOfLastBarStart = posInfo->getPpqPositionOfLastBarStart();
+            nextHostTransport.frameRate = posInfo->getFrameRate();
+            nextHostTransport.editOriginTime = posInfo->getEditOriginTime();
+            nextHostTransport.hostTimeNs = posInfo->getHostTimeNs();
+            nextHostTransport.isRecording = posInfo->getIsRecording();
+            nextHostTransport.isLooping = posInfo->getIsLooping();
         }
     }
+
+    hostTransportInfo = nextHostTransport;
+
+    // Compatibility adapter: legacy fields mirror the authoritative snapshot.
+    value_info_BPM = hostTransportInfo.bpm;
+    value_info_timeInSeconds = hostTransportInfo.timeInSeconds;
+    value_info_ppqPosition = hostTransportInfo.ppqPosition;
+    value_info_isPlaying = hostTransportInfo.isPlaying;
+    value_info_timeInSamples = hostTransportInfo.timeInSamples;
+    value_info_timeSignature = hostTransportInfo.timeSignature;
+    value_info_loopPoints = hostTransportInfo.loopPoints;
+    value_info_barCount = hostTransportInfo.barCount;
+    value_info_ppqPositionOfLastBarStart = hostTransportInfo.ppqPositionOfLastBarStart;
+    value_info_frameRate = hostTransportInfo.frameRate;
+    value_info_editOriginTime = hostTransportInfo.editOriginTime;
+    value_info_hostTimeNs = hostTransportInfo.hostTimeNs;
+    value_info_isRecording = hostTransportInfo.isRecording;
+    value_info_isLooping = hostTransportInfo.isLooping;
 
     value_info_totalNumInputChannels = buffer.getNumChannels();
     value_info_totalNumOutputChannels = getTotalNumOutputChannels();
@@ -256,7 +279,7 @@ void JX11AudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Mi
     /// WETDRY_PPC_PREFIX END
 
     /// OVERSAMPLING_PPCPB START
-    myplugin->processAudio(buffer, 1);
+    myplugin->processAudio(buffer, 1, hostTransportInfo);
 
     /// OVERSAMPLING_PPCPB END
 

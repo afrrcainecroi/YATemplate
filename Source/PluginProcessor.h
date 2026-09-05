@@ -22,6 +22,37 @@ class JX11AudioProcessorEditor;
 #include <string_view>
 #include <iostream>
 
+// Per-block copy of JUCE transport/position information.  The JUCE
+// AudioPlayHead and PositionInfo objects remain private to PluginProcessor;
+// this is the boundary that can later be consumed by generated DSP code.
+struct HostTransportInfo
+{
+  static constexpr double fallbackBpm = 120.0;
+
+  bool playHeadAvailable = false;
+  bool positionAvailable = false;
+
+  juce::Optional<double> bpm;
+  juce::Optional<double> timeInSeconds;
+  juce::Optional<double> ppqPosition;
+  bool isPlaying = false;
+  juce::Optional<int64_t> timeInSamples;
+  juce::Optional<juce::AudioPlayHead::TimeSignature> timeSignature;
+  juce::Optional<juce::AudioPlayHead::LoopPoints> loopPoints;
+  juce::Optional<int64_t> barCount;
+  juce::Optional<double> ppqPositionOfLastBarStart;
+  juce::Optional<juce::AudioPlayHead::FrameRate> frameRate;
+  juce::Optional<double> editOriginTime;
+  juce::Optional<uint64_t> hostTimeNs;
+  bool isRecording = false;
+  bool isLooping = false;
+
+  double bpmOrFallback() const noexcept
+  {
+    return bpm.orFallback (fallbackBpm);
+  }
+};
+
 
 //==============================================================================
 /**
@@ -120,20 +151,25 @@ public:
   int value_info_totalNumInputChannels;
   int value_info_totalNumOutputChannels;
 
-  juce::Optional<double> value_info_BPM { 120.f };   // example: updated in processBlock()
-  juce::Optional<double> value_info_timeInSeconds;   // The current playback position in seconds
-  juce::Optional<double> value_info_ppqPosition;       // The current playback position in "Pulses Per Quarter Note"
-  bool value_info_isPlaying;                             // Whether the host is currently playing
-  juce::Optional<long int> value_info_timeInSamples; // Whether the host is currently playing
-  juce::Optional<juce::AudioPlayHead::TimeSignature> value_info_timeSignature; // The time signature, if available
-  juce::Optional<juce::AudioPlayHead::LoopPoints> value_info_loopPoints; // The loop points, if available
-  juce::Optional<int64_t> value_info_barCount; // The number of bars in the current loop, if available
-  juce::Optional<double> value_info_ppqPositionOfLastBarStart; // The position of the start of the last bar, in units of quarter-notes
-  juce::Optional<juce::AudioPlayHead::FrameRate> value_info_frameRate; // The video frame rate, if available
-  juce::Optional<double> value_info_editOriginTime; // The origin time of the current edit, in seconds
-  juce::Optional<uint64_t> value_info_hostTimeNs; // The current host time in nanoseconds
-  bool value_info_isRecording; // Whether the host is currently recording
-  bool value_info_isLooping; // Whether the host is currently looping
+  HostTransportInfo hostTransportInfo;
+
+  // Temporary compatibility mirrors for existing generated/developer code.
+  // They are written only from hostTransportInfo in processBlock and are not
+  // a second source of transport state.
+  juce::Optional<double> value_info_BPM;
+  juce::Optional<double> value_info_timeInSeconds;
+  juce::Optional<double> value_info_ppqPosition;
+  bool value_info_isPlaying = false;
+  juce::Optional<int64_t> value_info_timeInSamples;
+  juce::Optional<juce::AudioPlayHead::TimeSignature> value_info_timeSignature;
+  juce::Optional<juce::AudioPlayHead::LoopPoints> value_info_loopPoints;
+  juce::Optional<int64_t> value_info_barCount;
+  juce::Optional<double> value_info_ppqPositionOfLastBarStart;
+  juce::Optional<juce::AudioPlayHead::FrameRate> value_info_frameRate;
+  juce::Optional<double> value_info_editOriginTime;
+  juce::Optional<uint64_t> value_info_hostTimeNs;
+  bool value_info_isRecording = false;
+  bool value_info_isLooping = false;
 
   ///OVERSAMPLING_PPH START
 

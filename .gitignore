@@ -25,6 +25,7 @@ Source/*
 !Source/Synth.h
 !Source/Utils.cpp
 !Source/Utils.h
+!Source/PluginDSP.h
 
 # Resources used by the template
 !Resources/
